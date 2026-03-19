@@ -65,3 +65,23 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ─── DESIGN 2: BOTANICAL HERO ANIMATIONS ──────────────────── */
+@keyframes sway {
+  0%, 100% { transform: var(--base-rotate) scale(1); }
+  50%      { transform: var(--base-rotate) scale(1.04) translateX(4px); }
+}
+
+@keyframes driftGlow {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  33%  { transform: translate(30px, -20px) scale(1.1); opacity: 0.6; }
+  66%  { transform: translate(-20px, 15px) scale(0.95); opacity: 0.35; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+}
+
+@keyframes leafFall {
+  0%   { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
