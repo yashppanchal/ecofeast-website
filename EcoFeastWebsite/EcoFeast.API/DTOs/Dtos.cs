@@ -41,6 +41,13 @@ public record CreateStrengthDto(
     int DisplayOrder
 );
 
+public record UpdateStrengthDto(
+    [Required, MaxLength(100)] string Title,
+    [Required, MaxLength(500)] string Description,
+    int DisplayOrder,
+    bool IsActive
+);
+
 // ─── CONTACT ───────────────────────────────────────────────────
 public record ContactInquiryDto(int Id, string Name, string Email, string Company, string Message, bool IsRead, DateTime CreatedAt);
 
@@ -58,6 +65,20 @@ public record LoginDto(
 );
 
 public record AuthResponseDto(string Token, string Username, DateTime ExpiresAt);
+
+// ─── ADMIN USER MANAGEMENT ──────────────────────────────────────
+public record AdminUserDto(int Id, string Username, string Email, DateTime CreatedAt);
+
+public record CreateAdminUserDto(
+    [Required, MaxLength(100)] string Username,
+    [Required, MinLength(6)] string Password,
+    [Required, EmailAddress, MaxLength(200)] string Email
+);
+
+public record ChangePasswordDto(
+    [Required] string CurrentPassword,
+    [Required, MinLength(6)] string NewPassword
+);
 
 // ─── SITE SETTINGS ─────────────────────────────────────────────
 public record SiteSettingDto(int Id, string Key, string Value);

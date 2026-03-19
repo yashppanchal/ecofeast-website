@@ -132,6 +132,32 @@ public class AdminController : ControllerBase
         return CreatedAtAction(nameof(GetStrengths), new { id = item.Id }, item);
     }
 
+    [HttpPut("strengths/{id}")]
+    public async Task<ActionResult> UpdateStrength(int id, [FromBody] UpdateStrengthDto dto)
+    {
+        var item = await _db.Strengths.FindAsync(id);
+        if (item == null) return NotFound();
+
+        item.Title = dto.Title;
+        item.Description = dto.Description;
+        item.DisplayOrder = dto.DisplayOrder;
+        item.IsActive = dto.IsActive;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Strength updated" });
+    }
+
+    [HttpDelete("strengths/{id}")]
+    public async Task<ActionResult> DeleteStrength(int id)
+    {
+        var item = await _db.Strengths.FindAsync(id);
+        if (item == null) return NotFound();
+
+        _db.Strengths.Remove(item);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Strength deleted" });
+    }
+
     // ═══════════════════════════════════════════════════════════
     // CONTACT INQUIRIES (read-only for admin)
     // ═══════════════════════════════════════════════════════════
@@ -186,5 +212,65 @@ public class AdminController : ControllerBase
 
         await _db.SaveChangesAsync();
         return Ok(new { message = "Setting updated" });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ADMIN USER MANAGEMENT
+    // ═══════════════════════════════════════════════════════════
+
+    [HttpGet("users")]
+    public async Task<ActionResult<List<AdminUserDto>>> GetUsers()
+    {
+        var users = await _db.AdminUsers
+            .OrderBy(u => u.CreatedAt)
+            .Select(u => new AdminUserDto(u.Id, u.Username, u.Email, u.CreatedAt))
+            .ToListAsync();
+        return Ok(users);
+    }
+
+    [HttpPost("users")]
+    public async Task<ActionResult> CreateUser([FromBody] CreateAdminUserDto dto)
+    {
+        if (await _db.AdminUsers.AnyAsync(u => u.Username == dto.Username))
+            return BadRequest(new { message = "Username already exists" });
+
+        var user = new AdminUser
+        {
+            Username = dto.Username,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            Email = dto.Email
+        };
+        _db.AdminUsers.Add(user);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "User created", id = user.Id });
+    }
+
+    [HttpPut("users/change-password")]
+    public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        var username = User.Identity?.Name;
+        var admin = await _db.AdminUsers.FirstOrDefaultAsync(a => a.Username == username);
+        if (admin == null) return NotFound();
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, admin.PasswordHash))
+            return BadRequest(new { message = "Current password is incorrect" });
+
+        admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Password changed successfully" });
+    }
+
+    [HttpDelete("users/{id}")]
+    public async Task<ActionResult> DeleteUser(int id)
+    {
+        var user = await _db.AdminUsers.FindAsync(id);
+        if (user == null) return NotFound();
+
+        var count = await _db.AdminUsers.CountAsync();
+        if (count <= 1) return BadRequest(new { message = "Cannot delete the last admin user" });
+
+        _db.AdminUsers.Remove(user);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "User deleted" });
     }
 }

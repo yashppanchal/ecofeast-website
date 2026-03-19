@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { fetchSiteData } from './services/api';
 
 import Navbar from './components/Navbar';
@@ -12,6 +13,16 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
 
+import AdminLogin from './admin/AdminLogin';
+import AdminLayout from './admin/AdminLayout';
+import AdminDashboard from './admin/AdminDashboard';
+import AdminStats from './admin/AdminStats';
+import AdminProducts from './admin/AdminProducts';
+import AdminStrengths from './admin/AdminStrengths';
+import AdminInquiries from './admin/AdminInquiries';
+import AdminSettings from './admin/AdminSettings';
+import AdminUsers from './admin/AdminUsers';
+
 // ─── Fallback data (used if API is unreachable during dev) ─────
 const FALLBACK = {
   stats: [
@@ -21,17 +32,17 @@ const FALLBACK = {
     { id: 4, label: 'Products Exported', value: 11, suffix: '', displayOrder: 4 },
   ],
   products: [
-    { id: 1, name: 'Fresh Onions', hsCode: '07031019', category: 'Fresh Vegetables', emoji: '🧅', displayOrder: 1 },
-    { id: 2, name: 'Alphonso Mangoes', hsCode: '08045021', category: 'Fresh Fruits', emoji: '🥭', displayOrder: 2 },
-    { id: 3, name: 'Pomegranates', hsCode: '08109010', category: 'Fresh Fruits', emoji: '🍎', displayOrder: 3 },
-    { id: 4, name: 'Fresh Grapes', hsCode: '08061000', category: 'Fresh Fruits', emoji: '🍇', displayOrder: 4 },
-    { id: 5, name: 'Fresh Bananas', hsCode: '08039010', category: 'Fresh Fruits', emoji: '🍌', displayOrder: 5 },
-    { id: 6, name: 'Green Chilly', hsCode: '07096010', category: 'Fresh Vegetables', emoji: '🌶️', displayOrder: 6 },
-    { id: 7, name: 'Basmati Rice', hsCode: '10063020', category: 'Cereals', emoji: '🍚', displayOrder: 7 },
-    { id: 8, name: 'Chilly Powder', hsCode: '09042211', category: 'Spices', emoji: '🫙', displayOrder: 8 },
-    { id: 9, name: 'Ladoos', hsCode: '21069099', category: 'Processed Foods', emoji: '🍬', displayOrder: 9 },
-    { id: 10, name: 'Sweet Corn Frozen', hsCode: '07104000', category: 'Frozen', emoji: '🌽', displayOrder: 10 },
-    { id: 11, name: 'Mix Vegetables Frozen', hsCode: '07109000', category: 'Frozen', emoji: '🥦', displayOrder: 11 },
+    { id: 1, name: 'Fresh Onions', hsCode: '07031019', category: 'Fresh Vegetables', emoji: '', displayOrder: 1 },
+    { id: 2, name: 'Alphonso Mangoes', hsCode: '08045021', category: 'Fresh Fruits', emoji: '', displayOrder: 2 },
+    { id: 3, name: 'Pomegranates', hsCode: '08109010', category: 'Fresh Fruits', emoji: '', displayOrder: 3 },
+    { id: 4, name: 'Fresh Grapes', hsCode: '08061000', category: 'Fresh Fruits', emoji: '', displayOrder: 4 },
+    { id: 5, name: 'Fresh Bananas', hsCode: '08039010', category: 'Fresh Fruits', emoji: '', displayOrder: 5 },
+    { id: 6, name: 'Green Chilly', hsCode: '07096010', category: 'Fresh Vegetables', emoji: '', displayOrder: 6 },
+    { id: 7, name: 'Basmati Rice', hsCode: '10063020', category: 'Cereals', emoji: '', displayOrder: 7 },
+    { id: 8, name: 'Chilly Powder', hsCode: '09042211', category: 'Spices', emoji: '', displayOrder: 8 },
+    { id: 9, name: 'Ladoos', hsCode: '21069099', category: 'Processed Foods', emoji: '', displayOrder: 9 },
+    { id: 10, name: 'Sweet Corn Frozen', hsCode: '07104000', category: 'Frozen', emoji: '', displayOrder: 10 },
+    { id: 11, name: 'Mix Vegetables Frozen', hsCode: '07109000', category: 'Frozen', emoji: '', displayOrder: 11 },
   ],
   strengths: [
     { id: 1, title: 'Established Supplier', description: 'Proven track record in fresh onion exports with consistent domestic and international supply chain.', displayOrder: 1 },
@@ -47,10 +58,14 @@ const FALLBACK = {
     address: 'B 504, Navbhagyashree, Mahatma Phule Road, Mulund(E), Mumbai - 81',
     contactPerson: 'Kaustubh Chavan',
     contactTitle: 'Director',
+    contactPerson2: 'Chaitanya Asarkar',
+    contactTitle2: 'Director',
+    phone2: '+91 83692 95601',
   },
 };
 
-export default function App() {
+// ─── Public website ──────────────────────────────────────────
+function Website() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -81,7 +96,33 @@ export default function App() {
       <CertificationsSection />
       <GlobalReachSection />
       <ContactSection settings={data.settings} />
-      <Footer />
+      <Footer settings={data.settings} />
     </div>
+  );
+}
+
+// ─── App with routing ────────────────────────────────────────
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public website */}
+        <Route path="/" element={<Website />} />
+
+        {/* Admin login */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Admin panel (protected) */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="stats" element={<AdminStats />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="strengths" element={<AdminStrengths />} />
+          <Route path="inquiries" element={<AdminInquiries />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="users" element={<AdminUsers />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }

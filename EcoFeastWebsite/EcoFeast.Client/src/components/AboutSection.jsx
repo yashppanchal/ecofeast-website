@@ -2,7 +2,7 @@ export default function AboutSection() {
   return (
     <section id="about" style={{ padding: '100px clamp(20px, 5vw, 60px)' }}>
       <div className="max-w-[900px] mx-auto text-center">
-        <div className="text-[0.75rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
+        <div className="text-[0.9rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
           Who We Are
         </div>
         <h2

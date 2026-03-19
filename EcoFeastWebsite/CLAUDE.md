@@ -2,6 +2,21 @@
 
 This file provides context for Claude (or any AI assistant) working on this codebase.
 
+## AI Assistant Rules (ALWAYS FOLLOW)
+
+1. **Always read context files before any task.** At the start of every session or task, read:
+   - This file (`CLAUDE.md`)
+   - `README.md`
+   - `docs/reference-design.jsx` (if working on UI/design)
+   - Any relevant component or controller file before modifying it
+
+2. **Ask before making any changes.** Before editing, creating, or deleting any file:
+   - Briefly describe what you plan to change and why
+   - Wait for explicit user confirmation before proceeding
+   - Do not make changes speculatively or "just to be safe"
+
+3. **One change at a time.** Propose one logical change, confirm, then proceed. Do not batch unrelated changes.
+
 ## Project Overview
 
 EcoFeast Nutrients Pvt. Ltd. is an Indian export company dealing in agricultural commodities and food products (onions, mangoes, rice, spices, etc.). This is their portfolio/display website designed to build trust with international buyers.
@@ -87,9 +102,9 @@ EcoFeast.Client/src/
 
 ## What Needs Building Next
 
-- [ ] Admin panel UI (React pages behind login)
+- [x] Admin panel UI (React pages behind login) — `/admin` route with login, dashboard, CRUD for stats/products/strengths/inquiries/settings
 - [ ] Image upload for products (currently using emoji placeholders)
-- [ ] Email notification on new contact inquiry
+- [x] Email notification on new contact inquiry (MailKit + Gmail SMTP)
 - [ ] SEO meta tags per section
 - [ ] Analytics integration
 - [ ] Testimonials/client logos section
@@ -98,8 +113,7 @@ EcoFeast.Client/src/
 ## Company Details (for reference)
 
 - **Company:** EcoFeast Nutrients Pvt. Ltd.
-- **Director:** Kaustubh Chavan
-- **Phone:** +91 96531 56090
+- **Directors:** Kaustubh Chavan (+91 96531 56090), Chaitanya Asarkar (+91 83692 95601)
 - **Email:** ecofeastnutrients@gmail.com
 - **Address:** B 504, Navbhagyashree, Mahatma Phule Road, Mulund(E), Mumbai - 81
 - **Certifications:** FSSAI, APEDA (RCMC), IEC, GST, PAN

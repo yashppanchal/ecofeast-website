@@ -1,24 +1,64 @@
+import { useState, useEffect } from 'react';
 import { useInView } from '../hooks/useAnimations';
 import StatCounter from './StatCounter';
 import LeafDecoration from './LeafDecoration';
 
-export default function HeroSection({ stats }) {
-  const [heroRef, heroInView] = useInView(0.3);
+function HeroLogo() {
+  return (
+    <img
+      src="/logo.svg"
+      alt="EcoFeast Nutrients"
+      className="w-20 h-20 object-contain mx-auto"
+    />
+  );
+}
+
+function HeroBackground() {
+  const [imgFailed, setImgFailed] = useState(false);
 
   return (
-    <section
-      ref={heroRef}
-      className="min-h-screen flex flex-col justify-center items-center text-center relative overflow-hidden"
-      style={{ padding: '120px clamp(20px, 5vw, 60px) 80px' }}
-    >
-      {/* Background texture */}
+    <>
+      {/* Try custom background image first */}
+      {!imgFailed && (
+        <img
+          src="/hero-bg.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: 0.15 }}
+          onError={() => setImgFailed(true)}
+        />
+      )}
+      {/* Always show gradient overlay (acts as sole background if no image) */}
       <div
         className="absolute inset-0"
         style={{
-          background:
-            'radial-gradient(ellipse at 30% 20%, rgba(43,58,27,0.4) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(201,169,110,0.06) 0%, transparent 50%)',
+          background: [
+            'radial-gradient(ellipse at 20% 10%, rgba(43,58,27,0.5) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 80% 90%, rgba(201,169,110,0.08) 0%, transparent 40%)',
+            'radial-gradient(ellipse at 50% 50%, rgba(28,42,20,0.3) 0%, transparent 70%)',
+            'linear-gradient(180deg, rgba(12,26,10,0) 0%, rgba(12,26,10,0.6) 100%)',
+          ].join(', '),
         }}
       />
+    </>
+  );
+}
+
+export default function HeroSection({ stats }) {
+  const [animate, setAnimate] = useState(false);
+  const [statsRef, statsInView] = useInView(0.3);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimate(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <section
+      className="min-h-screen flex flex-col justify-center items-center text-center relative overflow-hidden"
+      style={{ padding: '120px clamp(20px, 5vw, 60px) 80px' }}
+    >
+      <HeroBackground />
       <LeafDecoration style={{ top: '10%', left: '5%', transform: 'rotate(-30deg)' }} />
       <LeafDecoration style={{ bottom: '15%', right: '8%', transform: 'rotate(45deg)' }} />
       <LeafDecoration style={{ top: '40%', right: '3%', transform: 'rotate(15deg)', width: 80, height: 80 }} />
@@ -27,29 +67,25 @@ export default function HeroSection({ stats }) {
         {/* Logo Mark */}
         <div
           style={{
-            animation: heroInView ? 'fadeSlideUp 0.8s both' : 'none',
+            animation: animate ? 'fadeSlideUp 0.8s both' : 'none',
             opacity: 0,
             marginBottom: 24,
           }}
         >
-          <div
-            className="inline-flex items-center justify-center w-20 h-20 rounded-full
-                       border-2 border-eco-gold/30 text-2xl font-display font-bold text-eco-gold"
-            style={{ animation: 'pulseGlow 3s ease-in-out infinite' }}
-          >
-            EF
-          </div>
+          <HeroLogo />
         </div>
 
-        {/* Eyebrow */}
+        {/* Company Name */}
         <div
-          className="text-[0.8rem] tracking-[0.35em] uppercase text-eco-gold mb-4 font-medium"
+          className="mb-4"
           style={{
-            animation: heroInView ? 'fadeSlideUp 0.8s 0.15s both' : 'none',
+            animation: animate ? 'fadeSlideUp 0.8s 0.15s both' : 'none',
             opacity: 0,
           }}
         >
-          EcoFeast Nutrients Pvt. Ltd.
+          <div className="font-display text-eco-gold font-semibold tracking-wide" style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)' }}>
+            EcoFeast Nutrients Pvt. Ltd.
+          </div>
         </div>
 
         {/* Headline */}
@@ -57,7 +93,7 @@ export default function HeroSection({ stats }) {
           className="font-display font-bold text-eco-cream leading-tight mb-5"
           style={{
             fontSize: 'clamp(2.2rem, 5vw, 4rem)',
-            animation: heroInView ? 'fadeSlideUp 0.8s 0.3s both' : 'none',
+            animation: animate ? 'fadeSlideUp 0.8s 0.3s both' : 'none',
             opacity: 0,
           }}
         >
@@ -72,7 +108,7 @@ export default function HeroSection({ stats }) {
           style={{
             fontSize: 'clamp(0.95rem, 2vw, 1.15rem)',
             lineHeight: 1.7,
-            animation: heroInView ? 'fadeSlideUp 0.8s 0.45s both' : 'none',
+            animation: animate ? 'fadeSlideUp 0.8s 0.45s both' : 'none',
             opacity: 0,
           }}
         >
@@ -82,6 +118,7 @@ export default function HeroSection({ stats }) {
 
         {/* Stats Counters */}
         <div
+          ref={statsRef}
           className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 max-w-[700px] mx-auto
                      py-9 border-t border-b border-eco-gold/15"
         >
@@ -91,8 +128,8 @@ export default function HeroSection({ stats }) {
               label={s.label}
               value={s.value}
               suffix={s.suffix}
-              delay={0.6 + i * 0.15}
-              trigger={heroInView}
+              delay={i * 0.15}
+              trigger={statsInView}
             />
           ))}
         </div>
@@ -101,7 +138,7 @@ export default function HeroSection({ stats }) {
         <div
           className="mt-12"
           style={{
-            animation: heroInView ? 'fadeIn 1s 1.5s both' : 'none',
+            animation: animate ? 'fadeIn 1s 1.5s both' : 'none',
             opacity: 0,
           }}
         >

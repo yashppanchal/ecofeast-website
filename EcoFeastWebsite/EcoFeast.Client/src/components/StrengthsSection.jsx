@@ -12,7 +12,7 @@ export default function StrengthsSection({ strengths }) {
     >
       <div className="max-w-[1000px] mx-auto">
         <div className="text-center mb-14">
-          <div className="text-[0.75rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
+          <div className="text-[0.9rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
             Why EcoFeast
           </div>
           <h2

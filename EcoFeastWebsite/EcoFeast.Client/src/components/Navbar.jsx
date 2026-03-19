@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
+
 const NAV_LINKS = [
   { label: 'About', id: 'about' },
   { label: 'Products', id: 'products' },
@@ -7,6 +8,18 @@ const NAV_LINKS = [
   { label: 'Global Reach', id: 'global' },
   { label: 'Contact', id: 'contact' },
 ];
+
+function Logo() {
+  return (
+    <div className="flex items-center gap-3">
+      <img src="/logo.svg" alt="EcoFeast" className="w-10 h-10" />
+      <div>
+        <div className="text-[0.95rem] font-semibold text-eco-cream leading-tight font-display">EcoFeast</div>
+        <div className="text-[0.6rem] tracking-[0.2em] text-eco-gold/70 uppercase">Nutrients Pvt. Ltd.</div>
+      </div>
+    </div>
+  );
+}
 
 export default function Navbar() {
   const [scrollY, setScrollY] = useState(0);
@@ -38,16 +51,10 @@ export default function Navbar() {
       <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[70px]">
         {/* Logo */}
         <div
-          className="flex items-center gap-3 cursor-pointer"
+          className="cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
-          <div className="font-display text-[1.6rem] font-bold text-eco-gold tracking-wide">
-            EF
-          </div>
-          <div>
-            <div className="text-[0.95rem] font-semibold text-eco-cream leading-tight">EcoFeast</div>
-            <div className="text-[0.6rem] tracking-[0.2em] text-eco-gold/70 uppercase">Nutrients Pvt. Ltd.</div>
-          </div>
+          <Logo />
         </div>
 
         {/* Desktop nav */}

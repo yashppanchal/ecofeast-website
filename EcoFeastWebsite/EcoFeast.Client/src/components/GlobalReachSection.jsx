@@ -12,7 +12,7 @@ export default function GlobalReachSection() {
       style={{ padding: '100px clamp(20px, 5vw, 60px)' }}
     >
       <div className="max-w-[900px] mx-auto text-center">
-        <div className="text-[0.75rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
+        <div className="text-[0.9rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
           Our Reach
         </div>
         <h2
@@ -27,7 +27,7 @@ export default function GlobalReachSection() {
         </p>
 
         <div
-          className="bg-white/[0.02] border border-eco-gold/[0.08] rounded-[20px] p-10"
+          className="p-4"
           style={{
             animation: mapInView ? 'fadeSlideUp 0.8s both' : 'none',
             opacity: 0,

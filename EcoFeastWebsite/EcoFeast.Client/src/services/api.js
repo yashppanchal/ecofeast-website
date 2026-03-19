@@ -73,4 +73,60 @@ export async function markInquiryRead(id) {
   return data;
 }
 
+// ─── STRENGTHS (Admin) ──────────────────────────────────────
+
+export async function getAdminStrengths() {
+  const { data } = await api.get('/admin/strengths', { headers: authHeaders() });
+  return data;
+}
+
+export async function createStrength(strengthData) {
+  const { data } = await api.post('/admin/strengths', strengthData, { headers: authHeaders() });
+  return data;
+}
+
+export async function updateStrength(id, strengthData) {
+  const { data } = await api.put(`/admin/strengths/${id}`, strengthData, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteStrength(id) {
+  const { data } = await api.delete(`/admin/strengths/${id}`, { headers: authHeaders() });
+  return data;
+}
+
+// ─── SETTINGS (Admin) ───────────────────────────────────────
+
+export async function getSettings() {
+  const { data } = await api.get('/admin/settings', { headers: authHeaders() });
+  return data;
+}
+
+export async function updateSetting(key, value) {
+  const { data } = await api.put('/admin/settings', { key, value }, { headers: authHeaders() });
+  return data;
+}
+
+// ─── ADMIN USERS (Admin) ────────────────────────────────────
+
+export async function getAdminUsers() {
+  const { data } = await api.get('/admin/users', { headers: authHeaders() });
+  return data;
+}
+
+export async function createAdminUser(userData) {
+  const { data } = await api.post('/admin/users', userData, { headers: authHeaders() });
+  return data;
+}
+
+export async function changePassword(currentPassword, newPassword) {
+  const { data } = await api.put('/admin/users/change-password', { currentPassword, newPassword }, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteAdminUser(id) {
+  const { data } = await api.delete(`/admin/users/${id}`, { headers: authHeaders() });
+  return data;
+}
+
 export default api;

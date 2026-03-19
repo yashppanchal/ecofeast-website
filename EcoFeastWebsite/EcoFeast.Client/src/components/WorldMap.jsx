@@ -1,61 +1,147 @@
 import { useState } from 'react';
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  Marker,
+  Line,
+} from 'react-simple-maps';
+
+const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
 const REGIONS = [
-  { name: 'Africa', x: 52, y: 48 },
-  { name: 'Middle East', x: 62, y: 40 },
-  { name: 'Europe', x: 53, y: 28 },
-  { name: 'USA', x: 22, y: 35 },
-  { name: 'South America', x: 30, y: 62 },
-  { name: 'Asia', x: 72, y: 42 },
-  { name: 'India', x: 67, y: 44, home: true },
+  { name: 'Africa', coordinates: [20, 5] },
+  { name: 'Middle East', coordinates: [48, 28] },
+  { name: 'Europe', coordinates: [15, 50] },
+  { name: 'USA', coordinates: [-95, 40] },
+  { name: 'South America', coordinates: [-58, -15] },
+  { name: 'Asia', coordinates: [105, 35] },
+  { name: 'India', coordinates: [78, 22], home: true },
 ];
+
+const INDIA_COORDS = [78, 22];
 
 export default function WorldMap() {
   const [hovered, setHovered] = useState(null);
 
   return (
-    <svg viewBox="0 0 100 70" className="w-full max-w-[700px]">
-      <g fill="rgba(201,169,110,0.08)" stroke="rgba(201,169,110,0.2)" strokeWidth="0.3">
-        <path d="M5,15 Q10,10 20,12 L28,18 Q30,22 28,30 L22,38 Q18,40 14,38 L8,30 Q4,22 5,15Z" />
-        <path d="M22,42 Q26,40 30,44 L32,52 Q34,60 30,65 L26,66 Q22,64 20,58 L18,50 Q18,44 22,42Z" />
-        <path d="M44,14 Q48,10 54,12 L58,16 Q60,20 58,24 L54,28 Q50,30 46,28 L44,22 Q42,18 44,14Z" />
-        <path d="M44,32 Q48,28 54,30 L58,36 Q62,44 60,54 L56,60 Q52,62 48,58 L44,48 Q40,40 44,32Z" />
-        <path d="M60,12 Q68,8 78,12 L84,18 Q88,24 86,32 L82,40 Q76,48 68,46 L62,40 Q58,32 58,24 L60,12Z" />
-        <path d="M64,34 Q66,32 70,34 L72,40 Q74,46 72,50 L68,52 Q64,50 62,46 L62,40 Q62,36 64,34Z" />
-        <path d="M76,52 Q80,48 86,50 L90,54 Q92,58 88,62 L82,64 Q78,62 76,58 L76,52Z" />
-      </g>
+    <ComposableMap
+      projection="geoMercator"
+      projectionConfig={{
+        scale: 148,
+        center: [35, 22],
+      }}
+      width={800}
+      height={450}
+      style={{ width: '100%', height: 'auto' }}
+    >
+      {/* Country shapes */}
+      <Geographies geography={GEO_URL}>
+        {({ geographies }) =>
+          geographies.map((geo) => (
+            <Geography
+              key={geo.rsmKey}
+              geography={geo}
+              fill="rgba(201,169,110,0.1)"
+              stroke="rgba(201,169,110,0.22)"
+              strokeWidth={0.5}
+              style={{
+                default: { outline: 'none' },
+                hover: { fill: 'rgba(201,169,110,0.15)', outline: 'none' },
+                pressed: { outline: 'none' },
+              }}
+            />
+          ))
+        }
+      </Geographies>
 
-      {REGIONS.map((r, i) => (
-        <g key={r.name} onMouseEnter={() => setHovered(r.name)} onMouseLeave={() => setHovered(null)}>
+      {/* Dashed lines from India to each target region */}
+      {REGIONS.filter(r => !r.home).map(r => (
+        <Line
+          key={r.name}
+          from={INDIA_COORDS}
+          to={r.coordinates}
+          stroke={hovered === r.name ? 'rgba(201,169,110,0.5)' : 'rgba(201,169,110,0.22)'}
+          strokeWidth={1.2}
+          strokeDasharray="6 3"
+          strokeLinecap="round"
+          style={{ transition: 'stroke 0.3s' }}
+        />
+      ))}
+
+      {/* Region markers */}
+      {REGIONS.map(r => (
+        <Marker
+          key={r.name}
+          coordinates={r.coordinates}
+          onMouseEnter={() => setHovered(r.name)}
+          onMouseLeave={() => setHovered(null)}
+          style={{ cursor: 'pointer' }}
+        >
           {r.home ? (
             <>
-              <circle cx={r.x} cy={r.y} r="1.8" fill="#C9A96E" opacity="0.9">
-                <animate attributeName="r" values="1.8;3;1.8" dur="2s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.9;0.3;0.9" dur="2s" repeatCount="indefinite" />
+              {/* Pulsing ring for India */}
+              <circle r={10} fill="rgba(201,169,110,0.12)" stroke="rgba(201,169,110,0.35)" strokeWidth={1}>
+                <animate attributeName="r" values="10;18;10" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="1;0.2;1" dur="3s" repeatCount="indefinite" />
               </circle>
-              <circle cx={r.x} cy={r.y} r="1" fill="#C9A96E" />
+              <circle r={5.5} fill="#C9A96E" />
+              {/* Always-visible label for India */}
+              <text
+                textAnchor="middle"
+                y={-14}
+                style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  fill: '#C9A96E',
+                }}
+              >
+                India
+              </text>
             </>
           ) : (
             <>
-              <circle cx={r.x} cy={r.y} r="1.2" fill="rgba(201,169,110,0.6)" opacity="0.7">
-                <animate attributeName="r" values="1.2;2.2;1.2" dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.7;0.2;0.7" dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" />
-              </circle>
-              <circle cx={r.x} cy={r.y} r="0.7" fill="rgba(201,169,110,0.8)" />
-              <line x1={67} y1={44} x2={r.x} y2={r.y} stroke="rgba(201,169,110,0.15)" strokeWidth="0.2" strokeDasharray="1 1" />
+              {/* Hover glow */}
+              <circle
+                r={hovered === r.name ? 12 : 8}
+                fill={hovered === r.name ? 'rgba(201,169,110,0.2)' : 'rgba(201,169,110,0.06)'}
+                stroke={hovered === r.name ? 'rgba(201,169,110,0.4)' : 'rgba(201,169,110,0.15)'}
+                strokeWidth={0.8}
+                style={{ transition: 'all 0.3s' }}
+              />
+              {/* Dot */}
+              <circle r={4.5} fill="rgba(201,169,110,0.75)" />
+              {/* Tooltip on hover */}
+              {hovered === r.name && (
+                <>
+                  <rect
+                    x={-34} y={-28}
+                    width={68} height={20}
+                    rx={5}
+                    fill="rgba(12,26,10,0.94)"
+                    stroke="rgba(201,169,110,0.3)"
+                    strokeWidth={0.6}
+                  />
+                  <text
+                    textAnchor="middle"
+                    y={-14}
+                    style={{
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 10,
+                      fontWeight: 600,
+                      fill: '#C9A96E',
+                    }}
+                  >
+                    {r.name}
+                  </text>
+                </>
+              )}
             </>
           )}
-          {hovered === r.name && (
-            <g>
-              <rect x={r.x - 8} y={r.y - 7} width={16} height={5} rx="1" fill="rgba(0,0,0,0.8)" />
-              <text x={r.x} y={r.y - 3.5} textAnchor="middle" fill="#C9A96E" fontSize="2.5" fontWeight="600">
-                {r.name}
-              </text>
-            </g>
-          )}
-        </g>
+        </Marker>
       ))}
-    </svg>
+    </ComposableMap>
   );
 }
 

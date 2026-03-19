@@ -1,13 +1,11 @@
 import { useInView } from '../hooks/useAnimations';
 import ProductCard from './ProductCard';
 
-const MARQUEE_ITEMS = [
-  'Fresh Onions', 'Basmati Rice', 'Alphonso Mangoes', 'Pomegranates',
-  'Chilly Powder', 'Green Chilly', 'Grapes', 'Ladoos', 'Bananas',
-];
-
 export default function ProductsSection({ products }) {
   const [prodRef, prodInView] = useInView(0.15);
+
+  // Build marquee from actual product names
+  const marqueeItems = products.map(p => p.name);
 
   return (
     <>
@@ -16,7 +14,7 @@ export default function ProductsSection({ products }) {
         <div className="flex w-max" style={{ animation: 'marquee 30s linear infinite' }}>
           {[0, 1].map(k => (
             <div key={k} className="flex gap-12 whitespace-nowrap pr-12">
-              {MARQUEE_ITEMS.map(p => (
+              {marqueeItems.map(p => (
                 <span
                   key={p + k}
                   className="text-[0.8rem] tracking-[0.15em] uppercase text-eco-gold/25 font-medium"
@@ -33,7 +31,7 @@ export default function ProductsSection({ products }) {
       <section id="products" ref={prodRef} style={{ padding: '100px clamp(20px, 5vw, 60px)' }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
-            <div className="text-[0.75rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
+            <div className="text-[0.9rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
               Our Portfolio
             </div>
             <h2

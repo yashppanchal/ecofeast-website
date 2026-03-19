@@ -50,7 +50,10 @@ public static class DbSeeder
             new SiteSetting { Key = "email", Value = "ecofeastnutrients@gmail.com" },
             new SiteSetting { Key = "address", Value = "B 504, Navbhagyashree, Mahatma Phule Road, Mulund(E), Mumbai - 81" },
             new SiteSetting { Key = "contactPerson", Value = "Kaustubh Chavan" },
-            new SiteSetting { Key = "contactTitle", Value = "Director" }
+            new SiteSetting { Key = "contactTitle", Value = "Director" },
+            new SiteSetting { Key = "contactPerson2", Value = "Chaitanya Asarkar" },
+            new SiteSetting { Key = "contactTitle2", Value = "Director" },
+            new SiteSetting { Key = "phone2", Value = "+91 83692 95601" }
         );
 
         // ─── Default Admin ─────────────────────────────────

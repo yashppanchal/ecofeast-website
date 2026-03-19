@@ -28,14 +28,23 @@ export default function ContactSection({ settings }) {
     }
   };
 
-  const phone = settings?.phone || '+91 96531 56090';
   const email = settings?.email || 'ecofeastnutrients@gmail.com';
   const address = settings?.address || 'B 504, Navbhagyashree, Mahatma Phule Road, Mulund(E), Mumbai - 81';
-  const contactPerson = settings?.contactPerson || 'Kaustubh Chavan';
-  const contactTitle = settings?.contactTitle || 'Director';
+
+  const directors = [
+    {
+      name: settings?.contactPerson || 'Kaustubh Chavan',
+      title: settings?.contactTitle || 'Director',
+      phone: settings?.phone || '+91 96531 56090',
+    },
+    {
+      name: settings?.contactPerson2 || 'Chaitanya Asarkar',
+      title: settings?.contactTitle2 || 'Director',
+      phone: settings?.phone2 || '+91 83692 95601',
+    },
+  ];
 
   const contactInfo = [
-    { label: 'Phone', value: phone, icon: 'Ph' },
     { label: 'Email', value: email, icon: 'Em' },
     { label: 'Address', value: address, icon: 'Ad' },
   ];
@@ -48,7 +57,7 @@ export default function ContactSection({ settings }) {
     <section id="contact" ref={contactRef} style={{ padding: '100px clamp(20px, 5vw, 60px)' }}>
       <div className="max-w-[1000px] mx-auto">
         <div className="text-center mb-14">
-          <div className="text-[0.75rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
+          <div className="text-[0.9rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
             Let's Connect
           </div>
           <h2
@@ -69,13 +78,26 @@ export default function ContactSection({ settings }) {
             }}
           >
             <div className="mb-8">
-              <div className="text-[0.75rem] text-eco-gold tracking-[0.15em] uppercase mb-2 font-medium">
-                Contact Person
+              <div className="text-[0.75rem] text-eco-gold tracking-[0.15em] uppercase mb-3 font-medium">
+                Directors
               </div>
-              <div className="text-[1.2rem] font-display text-eco-cream font-semibold">
-                {contactPerson}
+              <div className="flex flex-col gap-4">
+                {directors.map((d, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-eco-gold/[0.08] border border-eco-gold/15
+                                    flex items-center justify-center text-[0.75rem] text-eco-gold shrink-0 font-semibold">
+                      {d.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div>
+                      <div className="text-[1rem] font-display text-eco-cream font-semibold leading-tight">
+                        {d.name}
+                      </div>
+                      <div className="text-[0.78rem] text-eco-cream/50">{d.title}</div>
+                      <div className="text-[0.8rem] text-eco-cream/60 mt-0.5">{d.phone}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="text-[0.85rem] text-eco-cream/50">{contactTitle}</div>
             </div>
 
             <div className="flex flex-col gap-5">

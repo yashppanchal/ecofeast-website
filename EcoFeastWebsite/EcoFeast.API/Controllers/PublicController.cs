@@ -1,5 +1,6 @@
 using EcoFeast.API.Data;
 using EcoFeast.API.DTOs;
+using EcoFeast.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,8 +11,13 @@ namespace EcoFeast.API.Controllers;
 public class PublicController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly IEmailService _email;
 
-    public PublicController(AppDbContext db) => _db = db;
+    public PublicController(AppDbContext db, IEmailService email)
+    {
+        _db = db;
+        _email = email;
+    }
 
     /// <summary>
     /// GET /api/public/sitedata
@@ -64,6 +70,9 @@ public class PublicController : ControllerBase
 
         _db.ContactInquiries.Add(inquiry);
         await _db.SaveChangesAsync();
+
+        // Send email notification (fire-and-forget, won't block response)
+        _ = _email.SendInquiryNotificationAsync(dto.Name, dto.Email, dto.Company ?? "", dto.Message);
 
         return Ok(new { message = "Inquiry submitted successfully", id = inquiry.Id });
     }

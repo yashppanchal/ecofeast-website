@@ -14,7 +14,7 @@ export default function CertificationsSection() {
   return (
     <section ref={certRef} style={{ padding: '80px clamp(20px, 5vw, 60px)' }}>
       <div className="max-w-[800px] mx-auto text-center">
-        <div className="text-[0.75rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
+        <div className="text-[0.9rem] tracking-[0.3em] uppercase text-eco-gold mb-4 font-medium">
           Compliance
         </div>
         <h2

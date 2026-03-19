@@ -27,9 +27,26 @@ else
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// ─── ENVIRONMENT VARIABLE OVERRIDES ─────────────────────────────
+// Render/Railway use flat env vars — map them to .NET config sections
+var envMappings = new Dictionary<string, string>
+{
+    { "JWT_KEY", "Jwt:Key" },
+    { "EMAIL_SMTP_HOST", "Email:SmtpHost" },
+    { "EMAIL_SMTP_PORT", "Email:SmtpPort" },
+    { "EMAIL_SENDER_EMAIL", "Email:SenderEmail" },
+    { "EMAIL_SENDER_PASSWORD", "Email:SenderPassword" },
+    { "EMAIL_NOTIFY_EMAIL", "Email:NotifyEmail" },
+};
+foreach (var (envVar, configKey) in envMappings)
+{
+    var value = Environment.GetEnvironmentVariable(envVar);
+    if (!string.IsNullOrEmpty(value))
+        builder.Configuration[configKey] = value;
+}
+
 // ─── JWT AUTHENTICATION ────────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? Environment.GetEnvironmentVariable("JWT_KEY")
     ?? "EcoFeast-Super-Secret-Key-Change-In-Production-2025!";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -51,6 +68,7 @@ builder.Services.AddAuthorization();
 
 // ─── SERVICES ──────────────────────────────────────────────────
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // ─── CORS ──────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
