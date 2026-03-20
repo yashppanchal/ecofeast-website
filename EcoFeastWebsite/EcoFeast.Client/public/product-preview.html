@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Grid Options — EcoFeast Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0C1A0A; color: #E8E0D0; font-family: 'DM Sans', sans-serif; }
+    ::selection { background: rgba(201,169,110,0.3); color: #fff; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0C1A0A; }
+    ::-webkit-scrollbar-thumb { background: #2B3A1B; border-radius: 3px; }
+
+    .section { padding: 50px 20px; border-bottom: 1px solid rgba(201,169,110,0.1); max-width: 1200px; margin: 0 auto; }
+    @media(min-width:768px) { .section { padding: 60px 40px; } }
+    .section-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 600; color: #C9A96E;
+      margin-bottom: 6px;
+    }
+    .section-desc { color: rgba(232,224,208,0.5); font-size: 0.85rem; margin-bottom: 28px; max-width: 600px; }
+    .eyebrow { font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: #C9A96E; margin-bottom: 8px; font-weight: 500; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; margin-left: 8px; background: rgba(201,169,110,0.2); color: #C9A96E; }
+
+    /* Leaf SVG icon used instead of emoji */
+    .leaf-icon {
+      width: 32px; height: 32px; opacity: 0.35;
+    }
+    .leaf-icon path { fill: #C9A96E; }
+
+    /* ─── NAV ─── */
+    .preview-nav {
+      position: sticky; top: 0; z-index: 100; padding: 12px 20px;
+      background: rgba(12,26,10,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(201,169,110,0.1);
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    @media(min-width:768px) { .preview-nav { padding: 16px 40px; gap: 12px; } }
+    .preview-nav a {
+      color: rgba(232,224,208,0.5); text-decoration: none; font-size: 0.78rem;
+      padding: 5px 10px; border-radius: 8px; transition: all 0.2s;
+    }
+    .preview-nav a:hover { color: #C9A96E; background: rgba(201,169,110,0.1); }
+    .preview-nav .title { font-family: 'Playfair Display', serif; color: #C9A96E; font-size: 0.95rem; font-weight: 600; margin-right: 12px; }
+
+    /* ════════════════════════════════════════════════════════════ */
+    /* OPTION A: Category Tabs + Horizontal Scroll                */
+    /* ════════════════════════════════════════════════════════════ */
+    .tabs { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .tab {
+      padding: 7px 14px; border-radius: 30px; font-size: 0.78rem; font-weight: 500;
+      border: 1px solid rgba(201,169,110,0.2); color: rgba(232,224,208,0.6);
+      cursor: pointer; transition: all 0.3s; white-space: nowrap; flex-shrink: 0;
+    }
+    .tab:hover, .tab.active { background: rgba(201,169,110,0.15); color: #C9A96E; border-color: rgba(201,169,110,0.4); }
+
+    .scroll-row {
+      display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
+      -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+    }
+    .card-a {
+      min-width: 200px; max-width: 200px; border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(201,169,110,0.1); transition: all 0.3s; cursor: pointer;
+      flex-shrink: 0; scroll-snap-align: start;
+    }
+    @media(min-width:768px) { .card-a { min-width: 230px; max-width: 230px; } }
+    .card-a:hover { transform: translateY(-5px); box-shadow: 0 10px 35px rgba(0,0,0,0.5); border-color: rgba(201,169,110,0.3); }
+    .card-a-img {
+      height: 150px; position: relative; overflow: hidden;
+    }
+    .card-a-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s, filter 0.5s;
+    }
+    .card-a-img .overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(12,26,10,0.55) 0%, rgba(201,169,110,0.12) 100%);
+      transition: opacity 0.4s; pointer-events: none;
+    }
+    .card-a:hover .overlay { opacity: 0; }
+    .card-a:hover .card-a-img img { transform: scale(1.08); }
+    .card-a-body { padding: 14px; }
+    .card-a-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 3px; }
+    .card-a-cat { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: #C9A96E; margin-bottom: 8px; }
+    .card-a-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .card-a-price { font-size: 0.88rem; font-weight: 600; color: #C9A96E; }
+    .card-a-hs { font-size: 0.65rem; color: rgba(232,224,208,0.3); font-family: monospace; }
+
+    /* ════════════════════════════════════════════════════════════ */
+    /* OPTION B: Bento / Masonry Grid                             */
+    /* ════════════════════════════════════════════════════════════ */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 180px;
+      gap: 10px;
+    }
+    @media(min-width:768px) {
+      .bento-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 200px; gap: 12px; }
+    }
+    .card-b {
+      border-radius: 14px; overflow: hidden; position: relative; cursor: pointer;
+      border: 1px solid rgba(201,169,110,0.08); transition: all 0.4s;
+    }
+    .card-b:hover { transform: scale(1.02); z-index: 2; box-shadow: 0 14px 45px rgba(0,0,0,0.6); }
+    .card-b.featured { grid-column: span 2; grid-row: span 2; }
+    .card-b-bg {
+      position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%;
+      transition: transform 0.5s, filter 0.5s;
+    }
+    .card-b-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(12,26,10,0.5), rgba(201,169,110,0.08));
+      transition: opacity 0.4s;
+    }
+    .card-b:hover .card-b-overlay { opacity: 0.15; }
+    .card-b:hover .card-b-bg { transform: scale(1.05); }
+    .card-b-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(12,26,10,0.92) 0%, rgba(12,26,10,0.2) 50%, transparent 100%);
+    }
+    .card-b-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; }
+    @media(min-width:768px) { .card-b-content { padding: 20px; } }
+    .card-b-tag {
+      display: inline-block; background: rgba(201,169,110,0.15); border: 1px solid rgba(201,169,110,0.25);
+      padding: 2px 8px; border-radius: 20px; font-size: 0.6rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #C9A96E; margin-bottom: 6px;
+    }
+    .card-b-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; }
+    .card-b.featured .card-b-name { font-size: 1.3rem; }
+    @media(min-width:768px) { .card-b.featured .card-b-name { font-size: 1.5rem; } }
+    .card-b-price { font-size: 0.85rem; color: #C9A96E; margin-top: 3px; font-weight: 600; }
+    .card-b-details {
+      font-size: 0.7rem; color: rgba(232,224,208,0.4); margin-top: 4px;
+      max-height: 0; overflow: hidden; transition: max-height 0.3s;
+    }
+    .card-b:hover .card-b-details { max-height: 40px; }
+
+    /* ════════════════════════════════════════════════════════════ */
+    /* OPTION C: Category Sections + Horizontal Scroll            */
+    /* ════════════════════════════════════════════════════════════ */
+    .cat-section { margin-bottom: 28px; }
+    .cat-header {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 10px; margin-bottom: 14px;
+      border-bottom: 1px solid rgba(201,169,110,0.1);
+    }
+    .cat-header h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; }
+    .cat-header .count { color: rgba(232,224,208,0.35); font-size: 0.8rem; }
+    .cat-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+
+    .card-c {
+      min-width: 160px; max-width: 160px; border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(201,169,110,0.1); transition: all 0.3s;
+      cursor: pointer; flex-shrink: 0; scroll-snap-align: start;
+    }
+    @media(min-width:768px) { .card-c { min-width: 180px; max-width: 180px; } }
+    .card-c:hover { border-color: rgba(201,169,110,0.3); transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+    .card-c-img {
+      height: 130px; position: relative; overflow: hidden;
+    }
+    .card-c-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .card-c-img .overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(12,26,10,0.35) 0%, rgba(12,26,10,0.55) 100%);
+      transition: opacity 0.3s;
+    }
+    .card-c:hover .overlay { opacity: 0.1; }
+    .card-c:hover .card-c-img img { transform: scale(1.06); }
+    .card-c-body { padding: 12px; text-align: center; }
+    .card-c-name { font-family: 'Playfair Display', serif; font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
+    .card-c-price { font-size: 0.8rem; color: #C9A96E; font-weight: 500; }
+
+    /* ════════════════════════════════════════════════════════════ */
+    /* OPTION D: Responsive Grid with Flip                        */
+    /* ════════════════════════════════════════════════════════════ */
+    .flip-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media(min-width:768px) { .flip-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; } }
+    @media(min-width:1024px) { .flip-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .card-d-wrapper { perspective: 1000px; height: 240px; cursor: pointer; }
+    @media(min-width:768px) { .card-d-wrapper { height: 280px; } }
+    .card-d {
+      width: 100%; height: 100%; position: relative;
+      transition: transform 0.6s; transform-style: preserve-3d;
+    }
+    .card-d-wrapper:hover .card-d { transform: rotateY(180deg); }
+    /* On mobile, tap to flip via focus trick */
+    .card-d-wrapper:focus-within .card-d { transform: rotateY(180deg); }
+    .card-d-wrapper { outline: none; }
+    .card-d-front, .card-d-back {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      border-radius: 14px; overflow: hidden; border: 1px solid rgba(201,169,110,0.1);
+    }
+    .card-d-front {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 20px; position: relative;
+    }
+    .card-d-front img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .card-d-front .front-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(160deg, rgba(12,26,10,0.7) 0%, rgba(12,26,10,0.4) 50%, rgba(201,169,110,0.1) 100%);
+    }
+    .card-d-front .front-content { position: relative; z-index: 1; }
+    .card-d-front .name { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; }
+    .card-d-front .cat { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: #C9A96E; }
+    .card-d-front .front-price { font-size: 0.9rem; color: #C9A96E; font-weight: 600; margin-top: 10px; }
+    .card-d-front .shimmer {
+      position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; z-index: 2;
+      background: linear-gradient(45deg, transparent 40%, rgba(201,169,110,0.05) 50%, transparent 60%);
+      animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+
+    .card-d-back {
+      transform: rotateY(180deg); background: #0C1A0A;
+    }
+    .card-d-back img { width: 100%; height: 65%; object-fit: cover; }
+    .card-d-back-info { padding: 12px 14px; }
+    @media(min-width:768px) { .card-d-back-info { padding: 14px 18px; } }
+    .card-d-back-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 3px; }
+    .card-d-back-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+    .card-d-back-price { color: #C9A96E; font-weight: 600; font-size: 0.9rem; }
+    .card-d-back-hs { font-size: 0.65rem; color: rgba(232,224,208,0.3); font-family: monospace; }
+    .card-d-back-desc { font-size: 0.72rem; color: rgba(232,224,208,0.45); margin-top: 6px; }
+
+    /* Footer */
+    .preview-footer { text-align:center; padding: 40px 20px; color: rgba(232,224,208,0.2); font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<nav class="preview-nav">
+  <span class="title">Product Grid Preview</span>
+  <a href="#option-a">A: Tabs+Scroll</a>
+  <a href="#option-b">B: Bento</a>
+  <a href="#option-c">C: Categories</a>
+  <a href="#option-d">D: Flip</a>
+</nav>
+
+<!-- ════════════════ OPTION A ════════════════ -->
+<div id="option-a" class="section">
+  <div class="eyebrow">Option A</div>
+  <div class="section-label">Category Tabs + Horizontal Scroll <span class="badge">RECOMMENDED</span></div>
+  <div class="section-desc">Filter by category, swipe/scroll through cards. Image visible with green-gold overlay, clears on hover to show full image.</div>
+
+  <div class="tabs">
+    <div class="tab active">All</div>
+    <div class="tab">Fresh Vegetables</div>
+    <div class="tab">Fresh Fruits</div>
+    <div class="tab">Cereals</div>
+    <div class="tab">Spices</div>
+    <div class="tab">Frozen</div>
+  </div>
+
+  <div class="scroll-row">
+    <div class="card-a">
+      <div class="card-a-img">
+        <img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80" alt="Onions" />
+        <div class="overlay"></div>
+      </div>
+      <div class="card-a-body">
+        <div class="card-a-name">Fresh Onions</div>
+        <div class="card-a-cat">Fresh Vegetables</div>
+        <div class="card-a-bottom">
+          <div class="card-a-price">$280<span style="font-size:0.65rem;opacity:0.5">/MT</span></div>
+          <div class="card-a-hs">HS: 07031019</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-a">
+      <div class="card-a-img">
+        <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" alt="Mangoes" />
+        <div class="overlay"></div>
+      </div>
+      <div class="card-a-body">
+        <div class="card-a-name">Alphonso Mangoes</div>
+        <div class="card-a-cat">Fresh Fruits</div>
+        <div class="card-a-bottom">
+          <div class="card-a-price">$1,200<span style="font-size:0.65rem;opacity:0.5">/MT</span></div>
+          <div class="card-a-hs">HS: 08045020</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-a">
+      <div class="card-a-img">
+        <img src="https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=400&q=80" alt="Chilly" />
+        <div class="overlay"></div>
+      </div>
+      <div class="card-a-body">
+        <div class="card-a-name">Chilly Powder</div>
+        <div class="card-a-cat">Spices</div>
+        <div class="card-a-bottom">
+          <div class="card-a-price">$850<span style="font-size:0.65rem;opacity:0.5">/MT</span></div>
+          <div class="card-a-hs">HS: 09042190</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-a">
+      <div class="card-a-img">
+        <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80" alt="Rice" />
+        <div class="overlay"></div>
+      </div>
+      <div class="card-a-body">
+        <div class="card-a-name">Basmati Rice</div>
+        <div class="card-a-cat">Cereals</div>
+        <div class="card-a-bottom">
+          <div class="card-a-price">$950<span style="font-size:0.65rem;opacity:0.5">/MT</span></div>
+          <div class="card-a-hs">HS: 10063020</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-a">
+      <div class="card-a-img">
+        <img src="https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400&q=80" alt="Grapes" />
+        <div class="overlay"></div>
+      </div>
+      <div class="card-a-body">
+        <div class="card-a-name">Fresh Grapes</div>
+        <div class="card-a-cat">Fresh Fruits</div>
+        <div class="card-a-bottom">
+          <div class="card-a-price">$600<span style="font-size:0.65rem;opacity:0.5">/MT</span></div>
+          <div class="card-a-hs">HS: 08061000</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-a">
+      <div class="card-a-img">
+        <img src="https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400&q=80" alt="Corn" />
+        <div class="overlay"></div>
+      </div>
+      <div class="card-a-body">
+        <div class="card-a-name">Sweet Corn Frozen</div>
+        <div class="card-a-cat">Frozen</div>
+        <div class="card-a-bottom">
+          <div class="card-a-price">$450<span style="font-size:0.65rem;opacity:0.5">/MT</span></div>
+          <div class="card-a-hs">HS: 07104000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ OPTION B ════════════════ -->
+<div id="option-b" class="section">
+  <div class="eyebrow">Option B</div>
+  <div class="section-label">Bento / Masonry Grid</div>
+  <div class="section-desc">Mixed-size tiles — featured products span 2x. Image always visible with overlay, clears on hover for full clarity. Responsive 2-col on mobile.</div>
+
+  <div class="bento-grid">
+    <div class="card-b featured">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=600&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Fresh Vegetables</div>
+        <div class="card-b-name">Fresh Onions</div>
+        <div class="card-b-price">$280/MT</div>
+        <div class="card-b-details">HS: 07031019 — Export grade, red & white varieties</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Fresh Fruits</div>
+        <div class="card-b-name">Alphonso Mangoes</div>
+        <div class="card-b-price">$1,200/MT</div>
+        <div class="card-b-details">HS: 08045020</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Cereals</div>
+        <div class="card-b-name">Basmati Rice</div>
+        <div class="card-b-price">$950/MT</div>
+        <div class="card-b-details">HS: 10063020</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Fresh Fruits</div>
+        <div class="card-b-name">Fresh Grapes</div>
+        <div class="card-b-price">$600/MT</div>
+        <div class="card-b-details">HS: 08061000</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=400&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Spices</div>
+        <div class="card-b-name">Chilly Powder</div>
+        <div class="card-b-price">$850/MT</div>
+        <div class="card-b-details">HS: 09042190</div>
+      </div>
+    </div>
+    <div class="card-b featured">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1596591868231-05e882a39a7d?w=600&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Fresh Fruits</div>
+        <div class="card-b-name">Pomegranates</div>
+        <div class="card-b-price">$1,500/MT</div>
+        <div class="card-b-details">HS: 08109010 — Premium Bhagwa variety</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Frozen</div>
+        <div class="card-b-name">Sweet Corn</div>
+        <div class="card-b-price">$450/MT</div>
+        <div class="card-b-details">HS: 07104000</div>
+      </div>
+    </div>
+    <div class="card-b">
+      <img class="card-b-bg" src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400&q=80" alt="" />
+      <div class="card-b-overlay"></div>
+      <div class="card-b-gradient"></div>
+      <div class="card-b-content">
+        <div class="card-b-tag">Fresh Fruits</div>
+        <div class="card-b-name">Bananas</div>
+        <div class="card-b-price">$350/MT</div>
+        <div class="card-b-details">HS: 08039010</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ OPTION C ════════════════ -->
+<div id="option-c" class="section">
+  <div class="eyebrow">Option C</div>
+  <div class="section-label">Category Sections + Cards</div>
+  <div class="section-desc">Products grouped by category with horizontal scroll per group. Image with soft overlay, clears on hover. Clean and organized.</div>
+
+  <div class="cat-section">
+    <div class="cat-header">
+      <h3>Fresh Vegetables</h3>
+      <span class="count">2 products</span>
+    </div>
+    <div class="cat-scroll">
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Fresh Onions</div>
+          <div class="card-c-price">$280/MT</div>
+        </div>
+      </div>
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Green Chilly</div>
+          <div class="card-c-price">$400/MT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-header">
+      <h3>Fresh Fruits</h3>
+      <span class="count">4 products</span>
+    </div>
+    <div class="cat-scroll">
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Alphonso Mangoes</div>
+          <div class="card-c-price">$1,200/MT</div>
+        </div>
+      </div>
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Fresh Grapes</div>
+          <div class="card-c-price">$600/MT</div>
+        </div>
+      </div>
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Fresh Bananas</div>
+          <div class="card-c-price">$350/MT</div>
+        </div>
+      </div>
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1596591868231-05e882a39a7d?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Pomegranates</div>
+          <div class="card-c-price">$1,500/MT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-header">
+      <h3>Cereals</h3>
+      <span class="count">1 product</span>
+    </div>
+    <div class="cat-scroll">
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Basmati Rice</div>
+          <div class="card-c-price">$950/MT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-header">
+      <h3>Spices</h3>
+      <span class="count">1 product</span>
+    </div>
+    <div class="cat-scroll">
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=300&q=80" alt="" />
+          <div class="overlay"></div>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-name">Chilly Powder</div>
+          <div class="card-c-price">$850/MT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ OPTION D ════════════════ -->
+<div id="option-d" class="section">
+  <div class="eyebrow">Option D</div>
+  <div class="section-label">3D Flip Cards</div>
+  <div class="section-desc">Front shows product image through dark overlay with name/price. Hover flips to reveal full image + details on back. Tap-friendly on mobile. 2-col mobile, 4-col desktop.</div>
+
+  <div class="flip-grid">
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Fresh Onions</div>
+            <div class="cat">Fresh Vegetables</div>
+            <div class="front-price">$280/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Fresh Onions</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$280/MT</div>
+              <div class="card-d-back-hs">HS: 07031019</div>
+            </div>
+            <div class="card-d-back-desc">Export grade red & white onions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Alphonso Mangoes</div>
+            <div class="cat">Fresh Fruits</div>
+            <div class="front-price">$1,200/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Alphonso Mangoes</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$1,200/MT</div>
+              <div class="card-d-back-hs">HS: 08045020</div>
+            </div>
+            <div class="card-d-back-desc">Premium Ratnagiri Alphonso</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Chilly Powder</div>
+            <div class="cat">Spices</div>
+            <div class="front-price">$850/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Chilly Powder</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$850/MT</div>
+              <div class="card-d-back-hs">HS: 09042190</div>
+            </div>
+            <div class="card-d-back-desc">Guntur, Kashmiri, Byadgi varieties</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Basmati Rice</div>
+            <div class="cat">Cereals</div>
+            <div class="front-price">$950/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Basmati Rice</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$950/MT</div>
+              <div class="card-d-back-hs">HS: 10063020</div>
+            </div>
+            <div class="card-d-back-desc">1121 & Pusa varieties, 2+ years aged</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Fresh Grapes</div>
+            <div class="cat">Fresh Fruits</div>
+            <div class="front-price">$600/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Fresh Grapes</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$600/MT</div>
+              <div class="card-d-back-hs">HS: 08061000</div>
+            </div>
+            <div class="card-d-back-desc">Thompson seedless, Sharad seedless</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1596591868231-05e882a39a7d?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Pomegranates</div>
+            <div class="cat">Fresh Fruits</div>
+            <div class="front-price">$1,500/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1596591868231-05e882a39a7d?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Pomegranates</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$1,500/MT</div>
+              <div class="card-d-back-hs">HS: 08109010</div>
+            </div>
+            <div class="card-d-back-desc">Premium Bhagwa variety</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Sweet Corn Frozen</div>
+            <div class="cat">Frozen</div>
+            <div class="front-price">$450/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Sweet Corn Frozen</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$450/MT</div>
+              <div class="card-d-back-hs">HS: 07104000</div>
+            </div>
+            <div class="card-d-back-desc">IQF frozen, bulk packing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-d-wrapper" tabindex="0">
+      <div class="card-d">
+        <div class="card-d-front">
+          <img src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400&q=80" alt="" />
+          <div class="front-overlay"></div>
+          <div class="shimmer"></div>
+          <div class="front-content">
+            <div class="name">Fresh Bananas</div>
+            <div class="cat">Fresh Fruits</div>
+            <div class="front-price">$350/MT</div>
+          </div>
+        </div>
+        <div class="card-d-back">
+          <img src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400&q=80" alt="" />
+          <div class="card-d-back-info">
+            <div class="card-d-back-name">Fresh Bananas</div>
+            <div class="card-d-back-row">
+              <div class="card-d-back-price">$350/MT</div>
+              <div class="card-d-back-hs">HS: 08039010</div>
+            </div>
+            <div class="card-d-back-desc">Cavendish, G9 variety</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="preview-footer">
+  EcoFeast Nutrients — Product Grid Preview &middot; Pick your favorite and tell me!
+</div>
+
+</body>
+</html>

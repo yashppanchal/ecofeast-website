@@ -37,6 +37,20 @@ public class Product
     [MaxLength(10)]
     public string Emoji { get; set; } = string.Empty;
 
+    [MaxLength(500)]
+    public string ImageUrl { get; set; } = string.Empty;
+
+    [MaxLength(500)]
+    public string Description { get; set; } = string.Empty;
+
+    public decimal Price { get; set; } = 0;
+
+    [MaxLength(10)]
+    public string Currency { get; set; } = "USD"; // USD, EUR, GBP, INR, AED
+
+    [MaxLength(20)]
+    public string PriceUnit { get; set; } = "/MT"; // e.g. "/MT", "/KG", "/Piece", "" to hide
+
     public bool IsActive { get; set; } = true;
 
     public int DisplayOrder { get; set; }

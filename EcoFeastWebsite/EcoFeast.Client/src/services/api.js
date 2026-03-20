@@ -63,6 +63,15 @@ export async function deleteProduct(id) {
   return data;
 }
 
+export async function uploadImage(file, folder = 'products') {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await api.post(`/admin/upload?folder=${folder}`, formData, {
+    headers: { ...authHeaders(), 'Content-Type': 'multipart/form-data' },
+  });
+  return data.url;
+}
+
 export async function getInquiries() {
   const { data } = await api.get('/admin/inquiries', { headers: authHeaders() });
   return data;

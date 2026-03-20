@@ -69,6 +69,8 @@ builder.Services.AddAuthorization();
 // ─── SERVICES ──────────────────────────────────────────────────
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+// ── Image storage: swap LocalStorageService → CloudinaryStorageService when needed ──
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 // ─── CORS ──────────────────────────────────────────────────────
 builder.Services.AddCors(options =>

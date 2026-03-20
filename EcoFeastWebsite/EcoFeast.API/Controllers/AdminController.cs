@@ -1,6 +1,7 @@
 using EcoFeast.API.Data;
 using EcoFeast.API.DTOs;
 using EcoFeast.API.Models;
+using EcoFeast.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,8 +14,13 @@ namespace EcoFeast.API.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly IStorageService _storage;
 
-    public AdminController(AppDbContext db) => _db = db;
+    public AdminController(AppDbContext db, IStorageService storage)
+    {
+        _db = db;
+        _storage = storage;
+    }
 
     // ═══════════════════════════════════════════════════════════
     // STAT COUNTERS
@@ -55,7 +61,8 @@ public class AdminController : ControllerBase
     {
         var products = await _db.Products
             .OrderBy(p => p.DisplayOrder)
-            .Select(p => new ProductDto(p.Id, p.Name, p.HsCode, p.Category, p.Emoji, p.IsActive, p.DisplayOrder))
+            .Select(p => new ProductDto(p.Id, p.Name, p.HsCode, p.Category, p.Emoji,
+                p.ImageUrl, p.Description, p.Price, p.Currency, p.PriceUnit, p.IsActive, p.DisplayOrder))
             .ToListAsync();
         return Ok(products);
     }
@@ -69,6 +76,11 @@ public class AdminController : ControllerBase
             HsCode = dto.HsCode,
             Category = dto.Category,
             Emoji = dto.Emoji,
+            ImageUrl = dto.ImageUrl ?? "",
+            Description = dto.Description ?? "",
+            Price = dto.Price,
+            Currency = dto.Currency ?? "USD",
+            PriceUnit = dto.PriceUnit ?? "/MT",
             DisplayOrder = dto.DisplayOrder
         };
         _db.Products.Add(product);
@@ -86,6 +98,11 @@ public class AdminController : ControllerBase
         product.HsCode = dto.HsCode;
         product.Category = dto.Category;
         product.Emoji = dto.Emoji;
+        product.ImageUrl = dto.ImageUrl ?? "";
+        product.Description = dto.Description ?? "";
+        product.Price = dto.Price;
+        product.Currency = dto.Currency ?? "USD";
+        product.PriceUnit = dto.PriceUnit ?? "/MT";
         product.IsActive = dto.IsActive;
         product.DisplayOrder = dto.DisplayOrder;
 
@@ -99,9 +116,37 @@ public class AdminController : ControllerBase
         var product = await _db.Products.FindAsync(id);
         if (product == null) return NotFound();
 
+        // Delete associated image file
+        if (!string.IsNullOrEmpty(product.ImageUrl))
+            await _storage.DeleteAsync(product.ImageUrl);
+
         _db.Products.Remove(product);
         await _db.SaveChangesAsync();
         return Ok(new { message = "Product deleted" });
+    }
+
+    /// <summary>
+    /// POST /api/admin/upload
+    /// Uploads an image file and returns the URL path.
+    /// Max 5MB, accepts jpg/jpeg/png/webp/gif/svg.
+    /// </summary>
+    [HttpPost("upload")]
+    [RequestSizeLimit(5 * 1024 * 1024)] // 5MB
+    public async Task<ActionResult> UploadImage(IFormFile file, [FromQuery] string folder = "products")
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = "No file provided" });
+
+        try
+        {
+            using var stream = file.OpenReadStream();
+            var url = await _storage.UploadAsync(stream, file.FileName, folder);
+            return Ok(new { url });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

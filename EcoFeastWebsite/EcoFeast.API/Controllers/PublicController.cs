@@ -35,7 +35,8 @@ public class PublicController : ControllerBase
         var products = await _db.Products
             .Where(p => p.IsActive)
             .OrderBy(p => p.DisplayOrder)
-            .Select(p => new ProductDto(p.Id, p.Name, p.HsCode, p.Category, p.Emoji, p.IsActive, p.DisplayOrder))
+            .Select(p => new ProductDto(p.Id, p.Name, p.HsCode, p.Category, p.Emoji,
+                p.ImageUrl, p.Description, p.Price, p.Currency, p.PriceUnit, p.IsActive, p.DisplayOrder))
             .ToListAsync();
 
         var strengths = await _db.Strengths

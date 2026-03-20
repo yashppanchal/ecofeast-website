@@ -13,13 +13,19 @@ public record UpdateStatDto(
 );
 
 // ─── PRODUCT ───────────────────────────────────────────────────
-public record ProductDto(int Id, string Name, string HsCode, string Category, string Emoji, bool IsActive, int DisplayOrder);
+public record ProductDto(int Id, string Name, string HsCode, string Category, string Emoji,
+    string ImageUrl, string Description, decimal Price, string Currency, string PriceUnit, bool IsActive, int DisplayOrder);
 
 public record CreateProductDto(
     [Required, MaxLength(150)] string Name,
     [Required, MaxLength(20)] string HsCode,
     [Required, MaxLength(50)] string Category,
     [MaxLength(10)] string Emoji,
+    [MaxLength(500)] string ImageUrl,
+    [MaxLength(500)] string Description,
+    decimal Price,
+    [MaxLength(10)] string Currency,
+    [MaxLength(20)] string PriceUnit,
     int DisplayOrder
 );
 
@@ -28,6 +34,11 @@ public record UpdateProductDto(
     [Required, MaxLength(20)] string HsCode,
     [Required, MaxLength(50)] string Category,
     [MaxLength(10)] string Emoji,
+    [MaxLength(500)] string ImageUrl,
+    [MaxLength(500)] string Description,
+    decimal Price,
+    [MaxLength(10)] string Currency,
+    [MaxLength(20)] string PriceUnit,
     bool IsActive,
     int DisplayOrder
 );
