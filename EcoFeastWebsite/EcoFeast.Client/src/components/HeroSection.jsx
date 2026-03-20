@@ -3,10 +3,13 @@ import { useInView } from '../hooks/useAnimations';
 import StatCounter from './StatCounter';
 import LeafDecoration from './LeafDecoration';
 
+import { getHeroDesign } from './designConfig';
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// TOGGLE: "Design1" = original  |  "Design2" = botanical organic
+// Hero design is now driven by designConfig.js SITE_DESIGN toggle
+// Possible values: 'Design1' | 'Design2' | 'DesignB'
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const HERO_DESIGN = 'Design2';
+const HERO_DESIGN = getHeroDesign();
 
 // ─── Shared Logo ─────────────────────────────────────────────
 function HeroLogo() {
@@ -54,9 +57,12 @@ function HeroBackgroundV1() {
 function HeroDecorationsV1() {
   return (
     <>
-      <LeafDecoration style={{ top: '10%', left: '5%', transform: 'rotate(-30deg)' }} />
-      <LeafDecoration style={{ bottom: '15%', right: '8%', transform: 'rotate(45deg)' }} />
-      <LeafDecoration style={{ top: '40%', right: '3%', transform: 'rotate(15deg)', width: 80, height: 80 }} />
+      <BotanicalLeaf size={240} opacity={0.07} rotation={-30} delay={0} style={{ top: '-2%', left: '-1%' }} />
+      <BotanicalLeaf size={200} opacity={0.06} rotation={140} delay={1.5} style={{ bottom: '-1%', right: '-1%' }} />
+      <BotanicalLeaf size={160} opacity={0.055} rotation={15} delay={3} style={{ top: '35%', right: '1%' }} />
+      <BotanicalLeaf size={140} opacity={0.05} rotation={-55} delay={2} style={{ bottom: '25%', left: '4%' }} />
+      <BotanicalLeaf size={120} opacity={0.045} rotation={95} delay={4.5} style={{ top: '15%', right: '18%' }} />
+      <BotanicalBranch opacity={0.05} delay={1} style={{ top: '8%', right: '0%', transform: 'scaleX(-1)' }} />
     </>
   );
 }
@@ -272,6 +278,16 @@ function HeroDecorationsV2() {
         style={{ top: '55%', right: '6%' }}
       />
 
+      {/* Additional nerve-detail leaves */}
+      <BotanicalLeaf
+        size={130} opacity={0.05} rotation={-150} delay={6}
+        style={{ top: '65%', left: '0%' }}
+      />
+      <BotanicalLeaf
+        size={110} opacity={0.045} rotation={45} delay={3.5}
+        style={{ top: '5%', left: '20%' }}
+      />
+
       {/* Branches */}
       <BotanicalBranch
         opacity={0.08} delay={0}
@@ -282,10 +298,87 @@ function HeroDecorationsV2() {
         style={{ bottom: '0%', left: '-2%', transform: 'rotate(30deg)' }}
       />
 
-      {/* Floating falling leaves — fewer, bigger, softer */}
-      <FloatingLeaf delay={0} left={12} size={50} />
-      <FloatingLeaf delay={5} left={55} size={42} />
-      <FloatingLeaf delay={10} left={85} size={46} />
+    </>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════
+// DESIGN B — Emerald & Gold Split hero
+// ═════════════════════════════════════════════════════════════
+function HeroBackgroundB() {
+  return (
+    <>
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(135deg, #0d1f0a 0%, #132a0f 35%, #1a1508 65%, #0C1A0A 100%)',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: [
+            'radial-gradient(ellipse at 0% 50%, rgba(43,80,27,0.35) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 100% 50%, rgba(201,169,110,0.12) 0%, transparent 45%)',
+            'radial-gradient(ellipse at 50% 100%, rgba(201,169,110,0.06) 0%, transparent 40%)',
+          ].join(', '),
+        }}
+      />
+      {/* Drifting green glow left */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          width: 500, height: 500, top: '10%', left: '-5%',
+          background: 'radial-gradient(circle, rgba(43,90,27,0.2) 0%, transparent 70%)',
+          filter: 'blur(100px)',
+          animation: 'driftGlow 15s ease-in-out infinite',
+        }}
+      />
+      {/* Drifting gold glow right */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          width: 400, height: 400, bottom: '10%', right: '-5%',
+          background: 'radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%)',
+          filter: 'blur(80px)',
+          animation: 'driftGlow 18s ease-in-out infinite',
+          animationDelay: '3s',
+        }}
+      />
+    </>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════
+// DESIGN B — Static leaf decorations (fewer, subtler than V2)
+// ═════════════════════════════════════════════════════════════
+function HeroDecorationsB() {
+  return (
+    <>
+      <BotanicalLeaf size={260} opacity={0.08} rotation={-30} delay={0} style={{ top: '-3%', left: '-2%' }} />
+      <BotanicalLeaf size={220} opacity={0.07} rotation={135} delay={2} style={{ bottom: '-1%', right: '-1%' }} />
+      <BotanicalLeaf size={170} opacity={0.06} rotation={20} delay={3.5} style={{ top: '30%', right: '0%' }} />
+      <BotanicalLeaf size={150} opacity={0.055} rotation={-65} delay={1.5} style={{ bottom: '20%', left: '3%' }} />
+      <BotanicalLeaf size={130} opacity={0.05} rotation={80} delay={4} style={{ top: '12%', right: '15%' }} />
+      <BotanicalLeaf size={140} opacity={0.05} rotation={-120} delay={5} style={{ top: '60%', left: '1%' }} />
+      <BotanicalLeaf size={110} opacity={0.045} rotation={50} delay={3} style={{ top: '8%', left: '18%' }} />
+      <BotanicalLeaf size={120} opacity={0.04} rotation={160} delay={6} style={{ bottom: '40%', right: '5%' }} />
+      <BotanicalBranch opacity={0.06} delay={1.5} style={{ bottom: '2%', left: '-1%', transform: 'rotate(25deg)' }} />
+    </>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════
+// FALLING LEAVES — shown on ALL hero designs
+// ═════════════════════════════════════════════════════════════
+function FallingLeaves() {
+  return (
+    <>
+      <FloatingLeaf delay={0} left={10} size={44} />
+      <FloatingLeaf delay={6} left={35} size={36} />
+      <FloatingLeaf delay={3} left={58} size={40} />
+      <FloatingLeaf delay={9} left={78} size={34} />
+      <FloatingLeaf delay={12} left={92} size={38} />
     </>
   );
 }
@@ -303,14 +396,17 @@ export default function HeroSection({ stats }) {
   }, []);
 
   const isV2 = HERO_DESIGN === 'Design2';
+  const isB = HERO_DESIGN === 'DesignB';
 
   return (
     <section
       className="min-h-screen flex flex-col justify-center items-center text-center relative overflow-hidden"
       style={{ padding: '120px clamp(20px, 5vw, 60px) 80px' }}
     >
-      {isV2 ? <HeroBackgroundV2 /> : <HeroBackgroundV1 />}
-      {isV2 ? <HeroDecorationsV2 /> : <HeroDecorationsV1 />}
+      {isB ? <HeroBackgroundB /> : isV2 ? <HeroBackgroundV2 /> : <HeroBackgroundV1 />}
+      {isV2 ? <HeroDecorationsV2 /> : isB ? <HeroDecorationsB /> : <HeroDecorationsV1 />}
+      {/* Falling leaves — always present on all designs */}
+      <FallingLeaves />
 
       <div className="relative z-10 max-w-[900px]">
         {/* Logo Mark */}

@@ -99,10 +99,29 @@ public record UpdateSiteSettingDto(
     [Required, MaxLength(1000)] string Value
 );
 
+// ─── GALLERY IMAGE ────────────────────────────────────────────
+public record GalleryImageDto(int Id, string Title, string ImageUrl, string Category, bool IsActive, int DisplayOrder, DateTime CreatedAt);
+
+public record CreateGalleryImageDto(
+    [Required, MaxLength(200)] string Title,
+    [Required, MaxLength(500)] string ImageUrl,
+    [Required, MaxLength(50)] string Category,
+    int DisplayOrder
+);
+
+public record UpdateGalleryImageDto(
+    [Required, MaxLength(200)] string Title,
+    [Required, MaxLength(500)] string ImageUrl,
+    [Required, MaxLength(50)] string Category,
+    bool IsActive,
+    int DisplayOrder
+);
+
 // ─── PUBLIC SITE DATA (single endpoint for the frontend) ──────
 public record SiteDataDto(
     List<StatCounterDto> Stats,
     List<ProductDto> Products,
     List<StrengthDto> Strengths,
+    List<GalleryImageDto> Gallery,
     Dictionary<string, string> Settings
 );

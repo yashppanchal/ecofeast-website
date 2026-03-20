@@ -204,6 +204,65 @@ public class AdminController : ControllerBase
     }
 
     // ═══════════════════════════════════════════════════════════
+    // GALLERY IMAGES
+    // ═══════════════════════════════════════════════════════════
+
+    [HttpGet("gallery")]
+    public async Task<ActionResult<List<GalleryImageDto>>> GetGallery()
+    {
+        var items = await _db.GalleryImages
+            .OrderByDescending(g => g.CreatedAt)
+            .Select(g => new GalleryImageDto(g.Id, g.Title, g.ImageUrl, g.Category, g.IsActive, g.DisplayOrder, g.CreatedAt))
+            .ToListAsync();
+        return Ok(items);
+    }
+
+    [HttpPost("gallery")]
+    public async Task<ActionResult> CreateGalleryImage([FromBody] CreateGalleryImageDto dto)
+    {
+        var item = new GalleryImage
+        {
+            Title = dto.Title,
+            ImageUrl = dto.ImageUrl,
+            Category = dto.Category,
+            DisplayOrder = dto.DisplayOrder
+        };
+        _db.GalleryImages.Add(item);
+        await _db.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetGallery), new { id = item.Id }, item);
+    }
+
+    [HttpPut("gallery/{id}")]
+    public async Task<ActionResult> UpdateGalleryImage(int id, [FromBody] UpdateGalleryImageDto dto)
+    {
+        var item = await _db.GalleryImages.FindAsync(id);
+        if (item == null) return NotFound();
+
+        item.Title = dto.Title;
+        item.ImageUrl = dto.ImageUrl;
+        item.Category = dto.Category;
+        item.IsActive = dto.IsActive;
+        item.DisplayOrder = dto.DisplayOrder;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Gallery image updated" });
+    }
+
+    [HttpDelete("gallery/{id}")]
+    public async Task<ActionResult> DeleteGalleryImage(int id)
+    {
+        var item = await _db.GalleryImages.FindAsync(id);
+        if (item == null) return NotFound();
+
+        if (!string.IsNullOrEmpty(item.ImageUrl))
+            await _storage.DeleteAsync(item.ImageUrl);
+
+        _db.GalleryImages.Remove(item);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Gallery image deleted" });
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // CONTACT INQUIRIES (read-only for admin)
     // ═══════════════════════════════════════════════════════════
 

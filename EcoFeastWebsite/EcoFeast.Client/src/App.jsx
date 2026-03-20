@@ -9,9 +9,11 @@ import ProductsSection from './components/ProductsSection';
 import StrengthsSection from './components/StrengthsSection';
 import CertificationsSection from './components/CertificationsSection';
 import GlobalReachSection from './components/GlobalReachSection';
+import GallerySection from './components/GallerySection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
+import SectionWrapper from './components/SectionWrapper';
 
 import AdminLogin from './admin/AdminLogin';
 import AdminLayout from './admin/AdminLayout';
@@ -22,6 +24,7 @@ import AdminStrengths from './admin/AdminStrengths';
 import AdminInquiries from './admin/AdminInquiries';
 import AdminSettings from './admin/AdminSettings';
 import AdminUsers from './admin/AdminUsers';
+import AdminGallery from './admin/AdminGallery';
 
 // ─── Fallback data (used if API is unreachable during dev) ─────
 const FALLBACK = {
@@ -52,6 +55,7 @@ const FALLBACK = {
     { id: 5, title: 'Custom Packaging', description: 'Bulk packing in 10kg, 25kg, 50kg bags with custom labeling options for buyer specifications.', displayOrder: 5 },
     { id: 6, title: 'Long-term Partners', description: 'We build relationships, not transactions. Flexible planning, repeat supply, and after-sales coordination.', displayOrder: 6 },
   ],
+  gallery: [],
   settings: {
     phone: '+91 96531 56090',
     email: 'ecofeastnutrients@gmail.com',
@@ -90,12 +94,13 @@ function Website() {
     <div className="bg-eco-dark text-eco-cream font-body min-h-screen overflow-hidden">
       <Navbar />
       <HeroSection stats={data.stats} />
-      <AboutSection />
-      <ProductsSection products={data.products} />
-      <StrengthsSection strengths={data.strengths} />
-      <CertificationsSection />
-      <GlobalReachSection />
-      <ContactSection settings={data.settings} />
+      <SectionWrapper index={0}><AboutSection /></SectionWrapper>
+      <SectionWrapper index={1}><ProductsSection products={data.products} /></SectionWrapper>
+      <SectionWrapper index={2}><StrengthsSection strengths={data.strengths} /></SectionWrapper>
+      <SectionWrapper index={3}><CertificationsSection /></SectionWrapper>
+      <SectionWrapper index={4}><GallerySection gallery={data.gallery || []} /></SectionWrapper>
+      <SectionWrapper index={5}><GlobalReachSection /></SectionWrapper>
+      <SectionWrapper index={6}><ContactSection settings={data.settings} /></SectionWrapper>
       <Footer settings={data.settings} />
     </div>
   );
@@ -118,6 +123,7 @@ export default function App() {
           <Route path="stats" element={<AdminStats />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="strengths" element={<AdminStrengths />} />
+          <Route path="gallery" element={<AdminGallery />} />
           <Route path="inquiries" element={<AdminInquiries />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="users" element={<AdminUsers />} />

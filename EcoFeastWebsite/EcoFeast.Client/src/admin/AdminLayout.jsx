@@ -6,8 +6,9 @@ const NAV_ITEMS = [
   { label: 'Stats', path: '/admin/stats', icon: 'S' },
   { label: 'Products', path: '/admin/products', icon: 'P' },
   { label: 'Strengths', path: '/admin/strengths', icon: 'W' },
+  { label: 'Gallery', path: '/admin/gallery', icon: 'Gl' },
   { label: 'Inquiries', path: '/admin/inquiries', icon: 'I' },
-  { label: 'Settings', path: '/admin/settings', icon: 'G' },
+  { label: 'Settings', path: '/admin/settings', icon: 'St' },
   { label: 'Users', path: '/admin/users', icon: 'U' },
 ];
 

@@ -42,11 +42,12 @@ In production, React is built into static files and served from .NET's `wwwroot/
 
 ## Key Design Decisions
 
-- **Single API call for frontend:** `GET /api/public/sitedata` returns stats, products, strengths, and settings all at once. This avoids waterfall requests on page load.
+- **Single API call for frontend:** `GET /api/public/sitedata` returns stats, products, strengths, gallery, and settings all at once. This avoids waterfall requests on page load.
 - **Fallback data in App.jsx:** If the API is down, the React app renders with hardcoded data so the frontend can be developed independently.
 - **Seed data:** `DbSeeder.cs` populates all initial data on first migration. Default admin: `admin` / `EcoFeast@2025`.
-- **Configurable hero design:** `HERO_DESIGN = 'Design1' | 'Design2'` in HeroSection.jsx. Design2 = botanical leaves + falling leaves.
+- **Configurable site design template:** `SITE_DESIGN` in `designConfig.js`. Options: `'Default'` | `'DesignA'` | `'DesignB'` | `'DesignC'` | `'DesignD'`. Currently set to `DesignB` (Emerald & Gold Split hero + warmer gold sections). Hero design is derived from this. DesignD = alternating green/gold heavy sections.
 - **Configurable product layout:** `PRODUCT_LAYOUT = 'scrollable' | 'grid-card'` in ProductsSection.jsx. Scrollable = tabs + horizontal scroll cards, Grid-card = bento/masonry grid.
+- **Gallery section:** Masonry grid with category tabs, load more (6 initial + 9 per load), translucent overlay + lightbox. Images managed via admin panel (max 3MB).
 - **Image storage:** Uses `IStorageService` interface (currently `LocalStorageService` saving to `wwwroot/uploads/`). Swap to `CloudinaryStorageService` with one line change in Program.cs.
 - **FormFields extracted outside components:** Prevents React remounting/focus loss on state change (learned fix from AdminProducts/AdminStrengths bug).
 
@@ -62,15 +63,15 @@ In production, React is built into static files and served from .NET's `wwwroot/
 ```
 EcoFeast.API/
   Controllers/     → PublicController (no auth), AuthController, AdminController (JWT)
-  Models/          → EF Core entities (Entities.cs: StatCounter, Product, Strength, ContactInquiry, AdminUser, SiteSetting)
+  Models/          → EF Core entities (Entities.cs: StatCounter, Product, Strength, ContactInquiry, AdminUser, SiteSetting, GalleryImage)
   DTOs/            → Request/response records (Dtos.cs)
   Data/            → AppDbContext + DbSeeder
   Services/        → TokenService (JWT), EmailService (MailKit SMTP), IStorageService + LocalStorageService (image upload)
   wwwroot/uploads/ → Uploaded product images stored here
 
 EcoFeast.Client/src/
-  components/      → One component per section (HeroSection, ProductsSection, ProductCard, WorldMap, etc.)
-  admin/           → Admin panel pages (AdminProducts, AdminStats, AdminStrengths, AdminInquiries, AdminSettings, AdminUsers, AdminLayout, AdminLogin, AdminDashboard)
+  components/      → One component per section (HeroSection, ProductsSection, ProductCard, GallerySection, WorldMap, SectionWrapper, designConfig.js, etc.)
+  admin/           → Admin panel pages (AdminProducts, AdminStats, AdminStrengths, AdminGallery, AdminInquiries, AdminSettings, AdminUsers, AdminLayout, AdminLogin, AdminDashboard)
   hooks/           → useInView (intersection observer), useCounter (animated numbers)
   services/        → api.js (axios client with all endpoints including uploadImage)
   styles/          → Tailwind + custom keyframe animations (index.css)
@@ -85,20 +86,21 @@ EcoFeast.Client/src/
 | Strength        | USP/competitive advantage cards                                  |
 | ContactInquiry  | Form submissions from visitors                                   |
 | AdminUser       | Admin authentication (username, passwordHash, email)             |
+| GalleryImage    | Gallery photos: title, imageUrl, category, isActive, displayOrder, createdAt |
 | SiteSetting     | Key-value pairs (phone, email, tagline, etc.)                    |
 
 ## API Endpoints Summary
 
 **Public (no auth):**
-- `GET  /api/public/sitedata` — all frontend data (stats, products, strengths, settings)
+- `GET  /api/public/sitedata` — all frontend data (stats, products, strengths, gallery, settings)
 - `POST /api/public/contact` — submit inquiry (sends email notification)
 
 **Auth:**
 - `POST /api/auth/login` — returns JWT
 
 **Admin (Bearer token):**
-- CRUD on `/api/admin/stats`, `/api/admin/products`, `/api/admin/strengths`
-- `POST /api/admin/upload?folder=products` — image upload (multipart/form-data, max 5MB, returns `{ url }`)
+- CRUD on `/api/admin/stats`, `/api/admin/products`, `/api/admin/strengths`, `/api/admin/gallery`
+- `POST /api/admin/upload?folder=products|gallery` — image upload (multipart/form-data, max 5MB, returns `{ url }`)
 - Read `/api/admin/inquiries`, mark read `/api/admin/inquiries/{id}/read`
 - Update `/api/admin/settings`
 - CRUD on `/api/admin/users` — user management (create, list, delete)
@@ -108,8 +110,8 @@ EcoFeast.Client/src/
 
 | Toggle | File | Values | Purpose |
 |--------|------|--------|---------|
-| `HERO_DESIGN` | `HeroSection.jsx` line ~top | `'Design1'` \| `'Design2'` | Hero background style |
-| `PRODUCT_LAYOUT` | `ProductsSection.jsx` line 7 | `'scrollable'` \| `'grid-card'` | Product cards layout |
+| `SITE_DESIGN` | `designConfig.js` line 10 | `'Default'` \| `'DesignA'` \| `'DesignB'` \| `'DesignC'` \| `'DesignD'` | Site-wide design template (hero + section backgrounds) |
+| `PRODUCT_LAYOUT` | `ProductsSection.jsx` line 6 | `'scrollable'` \| `'grid-card'` | Product cards layout |
 
 ## Running Locally
 
@@ -138,6 +140,9 @@ EcoFeast.Client/src/
 - [x] World map with react-simple-maps
 - [x] Admin user management (create, change password, delete)
 - [x] Botanical hero design (Design2 with leaves + falling leaves)
+- [x] Gallery section with category tabs, load more, lightbox, admin CRUD
+- [x] Configurable site design templates (Default, A, B, C, D) via designConfig.js
+- [x] Emerald & Gold Split hero (DesignB) + alternating green/gold sections (DesignD)
 - [ ] Switch to Cloudinary for image storage (when Railway ephemeral FS is an issue)
 - [ ] SEO meta tags per section
 - [ ] Analytics integration

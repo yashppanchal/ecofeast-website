@@ -104,6 +104,28 @@ export async function deleteStrength(id) {
   return data;
 }
 
+// ─── GALLERY (Admin) ────────────────────────────────────────
+
+export async function getAdminGallery() {
+  const { data } = await api.get('/admin/gallery', { headers: authHeaders() });
+  return data;
+}
+
+export async function createGalleryImage(imageData) {
+  const { data } = await api.post('/admin/gallery', imageData, { headers: authHeaders() });
+  return data;
+}
+
+export async function updateGalleryImage(id, imageData) {
+  const { data } = await api.put(`/admin/gallery/${id}`, imageData, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteGalleryImage(id) {
+  const { data } = await api.delete(`/admin/gallery/${id}`, { headers: authHeaders() });
+  return data;
+}
+
 // ─── SETTINGS (Admin) ───────────────────────────────────────
 
 export async function getSettings() {

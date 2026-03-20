@@ -96,3 +96,11 @@ body {
   90%  { opacity: 1; }
   100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
+
+/* ─── DESIGN TEMPLATE D: ALTERNATING SECTION STYLES ──────── */
+.sec-gold-heavy {
+  border-top: 1px solid rgba(201,169,110,0.06);
+}
+.sec-green-heavy {
+  border-top: 1px solid rgba(43,80,27,0.1);
+}

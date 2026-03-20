@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<ContactInquiry> ContactInquiries => Set<ContactInquiry>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
+    public DbSet<GalleryImage> GalleryImages => Set<GalleryImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

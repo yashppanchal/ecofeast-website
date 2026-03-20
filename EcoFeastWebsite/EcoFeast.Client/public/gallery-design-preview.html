@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoFeast — Gallery & Design Template Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --eco-dark: #0C1A0A;
+    --eco-gold: #C9A96E;
+    --eco-gold-dark: #A88B4A;
+    --eco-cream: #E8E0D0;
+    --eco-green: #2B3A1B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--eco-dark);
+    color: var(--eco-cream);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+  ::selection { background: rgba(201,169,110,0.3); color: #fff; }
+  .font-display { font-family: 'Playfair Display', serif; }
+
+  /* ─── NAV ─── */
+  .preview-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(12,26,10,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,169,110,0.1);
+    padding: 16px 24px;
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  }
+  .preview-nav a {
+    color: var(--eco-gold); text-decoration: none; font-size: 0.8rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 14px; border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 999px; transition: all 0.2s;
+  }
+  .preview-nav a:hover { background: rgba(201,169,110,0.15); border-color: var(--eco-gold); }
+  .preview-nav .nav-title { color: var(--eco-cream); font-size: 0.9rem; font-weight: 600; margin-right: auto; }
+
+  /* ─── SECTION HEADERS ─── */
+  .section-header { text-align: center; padding: 60px 24px 20px; }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    color: var(--eco-cream); font-weight: 700; margin-bottom: 8px;
+  }
+  .section-header p { color: rgba(232,224,208,0.45); font-size: 0.9rem; max-width: 600px; margin: 0 auto; }
+  .section-divider {
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--eco-gold), transparent);
+    margin: 12px auto 0;
+  }
+
+  /* ─── TABS ─── */
+  .tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 16px 24px 24px; }
+  .tab {
+    padding: 6px 16px; border: 1px solid rgba(201,169,110,0.15); border-radius: 999px;
+    font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: rgba(232,224,208,0.5); cursor: pointer; transition: all 0.2s; background: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab:hover { color: var(--eco-gold); border-color: rgba(201,169,110,0.3); }
+  .tab.active { background: rgba(201,169,110,0.15); color: var(--eco-gold); border-color: var(--eco-gold); }
+
+  /* ─── OPTION LABEL ─── */
+  .option-label {
+    display: inline-block;
+    background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.25);
+    padding: 6px 18px; border-radius: 999px; font-size: 0.75rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--eco-gold); font-weight: 600;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* GALLERY                                                        */
+  /* ═══════════════════════════════════════════════════════════════ */
+  .gallery-grid {
+    display: grid; gap: 12px; padding: 0 24px; max-width: 1200px; margin: 0 auto;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .gallery-item { position: relative; border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.4s, box-shadow 0.4s; aspect-ratio: 4/3; }
+  .gallery-item:hover { transform: scale(1.02); box-shadow: 0 12px 40px rgba(0,0,0,0.5); z-index: 2; }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s; }
+  .gallery-item:hover img { transform: scale(1.08); }
+  .gallery-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(12,26,10,0.35), rgba(201,169,110,0.12));
+    mix-blend-mode: multiply; transition: opacity 0.5s; pointer-events: none;
+  }
+  .gallery-item:hover .gallery-overlay { opacity: 0; }
+  .gallery-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 40px 16px 14px;
+    background: linear-gradient(to top, rgba(12,26,10,0.9) 0%, transparent 100%);
+    opacity: 0; transform: translateY(8px); transition: all 0.3s;
+  }
+  .gallery-item:hover .gallery-info { opacity: 1; transform: translateY(0); }
+  .gallery-info .cat-badge {
+    display: inline-block; background: rgba(201,169,110,0.15);
+    border: 1px solid rgba(201,169,110,0.25); padding: 2px 10px; border-radius: 999px;
+    font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--eco-gold); margin-bottom: 4px;
+  }
+  .gallery-info .gi-title { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--eco-cream); font-weight: 600; }
+
+  /* Gallery wrapper — clips the grid + fade overlay */
+  .gallery-wrapper { position: relative; overflow: hidden; transition: max-height 0.6s ease; }
+  .gallery-wrapper.clipped { max-height: 480px; } /* clips 2nd row ~50-60% visible */
+  .gallery-fade {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 180px; z-index: 3;
+    background: linear-gradient(to top, var(--eco-dark) 0%, rgba(12,26,10,0.95) 30%, rgba(12,26,10,0.5) 60%, transparent 100%);
+    pointer-events: none; transition: opacity 0.5s;
+  }
+  .gallery-fade.hidden { opacity: 0; }
+
+  /* Load more */
+  .load-more-wrap { text-align: center; padding: 8px 24px 60px; position: relative; z-index: 4; margin-top: -40px; }
+  .load-more-btn {
+    background: none; border: 1px solid rgba(201,169,110,0.25); color: var(--eco-gold);
+    padding: 12px 32px; border-radius: 999px; font-size: 0.8rem; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .load-more-btn:hover { background: rgba(201,169,110,0.1); border-color: var(--eco-gold); }
+  .load-more-btn:disabled { opacity: 0.3; cursor: default; }
+  .load-more-btn .arrow { display: inline-block; transition: transform 0.3s; font-size: 1rem; line-height: 1; }
+  .load-more-btn:hover .arrow { transform: translateY(3px); }
+  .image-count { color: rgba(232,224,208,0.3); font-size: 0.75rem; margin-top: 8px; }
+
+  /* ─── LIGHTBOX ─── */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(12,26,10,0.95); display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(20px);
+  }
+  .lightbox.open { opacity: 1; pointer-events: all; }
+  .lightbox img {
+    max-width: 90vw; max-height: 85vh; border-radius: 12px;
+    border: 1px solid rgba(201,169,110,0.15); box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+  }
+  .lightbox .close-btn {
+    position: absolute; top: 20px; right: 24px; width: 44px; height: 44px;
+    background: rgba(201,169,110,0.1); border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 50%; color: var(--eco-gold); font-size: 1.2rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .lightbox .close-btn:hover { background: rgba(201,169,110,0.2); }
+  .lightbox .lb-info { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; }
+
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* DESIGN TEMPLATE D — ALTERNATING GREEN / GOLD SECTIONS          */
+  /* ═══════════════════════════════════════════════════════════════ */
+  .template-d { position: relative; }
+
+  /* Green-heavy section */
+  .sec-green {
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #0d1f0a 0%, #0C1A0A 50%, #0e200b 100%);
+    padding: 100px clamp(20px, 5vw, 60px);
+  }
+  .sec-green::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(43,80,27,0.3) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 70%, rgba(43,58,27,0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(28,42,20,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .sec-green::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(43,80,27,0.4), transparent);
+  }
+  .sec-green .glow {
+    position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px);
+  }
+  .sec-green .glow-1 { top: 10%; left: 5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(43,90,27,0.15) 0%, transparent 70%); }
+  .sec-green .glow-2 { bottom: 10%; right: 8%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(43,70,27,0.1) 0%, transparent 70%); }
+
+  /* Gold-heavy section — lighter, warmer gold wash */
+  .sec-gold {
+    position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #0f1a0a 0%, #1c1710 50%, #0f1a0a 100%);
+    padding: 100px clamp(20px, 5vw, 60px);
+  }
+  .sec-gold::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 15%, rgba(201,169,110,0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 85%, rgba(201,169,110,0.14) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(201,169,110,0.1) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .sec-gold::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,169,110,0.3), transparent);
+  }
+  .sec-gold .glow {
+    position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px);
+  }
+  .sec-gold .glow-1 { top: 15%; right: 10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(201,169,110,0.14) 0%, transparent 70%); }
+  .sec-gold .glow-2 { bottom: 15%; left: 5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(201,169,110,0.1) 0%, transparent 70%); }
+
+  /* Section content styling */
+  .sec-content { position: relative; z-index: 2; max-width: 1000px; margin: 0 auto; }
+  .sec-content .label {
+    font-size: 0.9rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--eco-gold); margin-bottom: 16px; font-weight: 500; text-align: center;
+  }
+  .sec-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 600;
+    color: var(--eco-cream); text-align: center; line-height: 1.15; margin-bottom: 16px;
+  }
+  .sec-content h2 span { color: var(--eco-gold); }
+  .sec-content .desc {
+    font-size: 1.05rem; color: rgba(232,224,208,0.6); line-height: 1.7;
+    max-width: 700px; margin: 0 auto 40px; text-align: center;
+  }
+
+  /* Cards in green section */
+  .sec-green .strength-card {
+    background: rgba(43,80,27,0.08); border: 1px solid rgba(43,80,27,0.2);
+    border-radius: 14px; padding: 28px; transition: border-color 0.3s;
+  }
+  .sec-green .strength-card:hover { border-color: rgba(43,120,27,0.35); }
+  .sec-green .strength-card .dot { width: 8px; height: 8px; border-radius: 50%; background: #4a8a4a; margin-bottom: 16px; box-shadow: 0 0 12px rgba(74,138,74,0.4); }
+
+  /* Cards in gold section */
+  .sec-gold .cert-badge {
+    background: rgba(201,169,110,0.08); border: 1px solid rgba(201,169,110,0.15);
+    border-radius: 10px; padding: 12px 20px; font-size: 0.85rem; color: var(--eco-gold); font-weight: 500;
+  }
+
+  /* Contact form in gold section */
+  .sec-gold .form-card {
+    background: rgba(201,169,110,0.04); border: 1px solid rgba(201,169,110,0.12);
+    border-radius: 16px; padding: 32px;
+  }
+  .sec-gold .form-input {
+    width: 100%; background: rgba(201,169,110,0.04); border: 1px solid rgba(201,169,110,0.15);
+    border-radius: 8px; padding: 12px 16px; color: var(--eco-cream); font-size: 0.9rem;
+    outline: none; font-family: 'DM Sans', sans-serif; margin-bottom: 12px;
+  }
+  .sec-gold .form-input:focus { border-color: rgba(201,169,110,0.4); }
+  .sec-gold .form-input::placeholder { color: rgba(232,224,208,0.2); }
+
+  /* Hero for template D */
+  .hero-d {
+    position: relative; min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    overflow: hidden; padding: 120px 24px 80px;
+    background: linear-gradient(135deg, #0d1f0a 0%, #132a0f 35%, #1a1508 65%, #0C1A0A 100%);
+  }
+  .hero-d::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 0% 50%, rgba(43,80,27,0.35) 0%, transparent 50%),
+      radial-gradient(ellipse at 100% 50%, rgba(201,169,110,0.12) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 100%, rgba(201,169,110,0.06) 0%, transparent 40%);
+  }
+  .hero-d .z-content { position: relative; z-index: 10; max-width: 900px; }
+  .hero-d .company-name {
+    font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--eco-gold); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 16px;
+  }
+  .hero-d h1 {
+    font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 700; line-height: 1.1; margin-bottom: 20px; color: var(--eco-cream);
+  }
+  .hero-d h1 span { color: var(--eco-gold); }
+  .hero-d .subhead {
+    color: rgba(232,224,208,0.6); font-size: clamp(0.95rem, 2vw, 1.15rem);
+    line-height: 1.7; max-width: 600px; margin: 0 auto 48px;
+  }
+  .hero-d .stats-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    max-width: 700px; margin: 0 auto; padding: 36px 0;
+    border-top: 1px solid rgba(201,169,110,0.15);
+    border-bottom: 1px solid rgba(201,169,110,0.15);
+  }
+  .hero-d .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--eco-gold); }
+  .hero-d .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(232,224,208,0.4); margin-top: 4px; }
+
+  /* Strength grid */
+  .strength-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* Map placeholder */
+  .map-placeholder {
+    background: rgba(43,80,27,0.06); border: 1px solid rgba(43,80,27,0.15);
+    border-radius: 16px; height: 300px; display: flex; align-items: center; justify-content: center;
+    color: rgba(232,224,208,0.2); font-size: 0.9rem;
+  }
+  .regions { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 32px; }
+  .region-dot { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: rgba(232,224,208,0.5); }
+  .region-dot .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(201,169,110,0.6); }
+
+  /* Product card placeholder */
+  .product-cards { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; }
+  .product-card-ph {
+    min-width: 220px; border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(43,80,27,0.2);
+    flex-shrink: 0;
+  }
+  .product-card-ph .img-area {
+    height: 140px; position: relative; overflow: hidden;
+  }
+  .product-card-ph .img-area img { width: 100%; height: 100%; object-fit: cover; }
+  .product-card-ph .img-area .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(12,26,10,0.3), rgba(201,169,110,0.1));
+    mix-blend-mode: multiply;
+  }
+  .product-card-ph .body { padding: 14px; }
+  .product-card-ph .body .name { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--eco-cream); font-weight: 600; }
+  .product-card-ph .body .cat { font-size: 0.65rem; color: var(--eco-gold); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+  .product-card-ph .body .price { font-size: 0.85rem; color: var(--eco-gold); font-weight: 600; margin-top: 8px; }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  @keyframes drift-glow { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(20px, -15px); } }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    .gallery-wrapper.clipped { max-height: 340px; }
+    .strength-grid { grid-template-columns: 1fr; }
+    .hero-d .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .product-cards { gap: 12px; }
+    .product-card-ph { min-width: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="preview-nav">
+  <span class="nav-title">EcoFeast Preview</span>
+  <a href="#gallery">Gallery A (Load More)</a>
+  <a href="#template-d">Design Template D</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- GALLERY — OPTION A (MASONRY) WITH LOAD MORE                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="gallery">
+  <div class="section-header">
+    <div class="option-label" style="margin-bottom:12px;">Gallery: Masonry + Load More</div>
+    <h2>Our <span style="color:var(--eco-gold)">Gallery</span></h2>
+    <p>3 full images in first row, second row of 3 at 50-60% visible with theme-colour blur fade. "Load More" reveals 9 images per click.</p>
+    <div class="section-divider"></div>
+  </div>
+  <div class="tabs" id="gallery-tabs"></div>
+  <div class="gallery-wrapper clipped" id="gallery-wrapper">
+    <div class="gallery-grid" id="gallery-grid"></div>
+    <div class="gallery-fade" id="gallery-fade"></div>
+  </div>
+  <div class="load-more-wrap">
+    <button class="load-more-btn" id="load-more-btn" onclick="loadMore()"><span>Load More</span><span class="arrow">&#8595;</span></button>
+    <div class="image-count" id="image-count"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DESIGN TEMPLATE D — ALTERNATING GREEN / GOLD SECTIONS          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="template-d" style="border-top: 1px solid rgba(201,169,110,0.06);">
+  <div class="section-header" style="padding-bottom: 0;">
+    <div class="option-label" style="margin-bottom:12px;">Design Template D: Alternating Green / Gold</div>
+    <h2>Full Page <span style="color:var(--eco-gold)">Preview</span></h2>
+    <p>Each section alternates between green-heavy and gold-heavy backgrounds. Scroll down to see the full effect.</p>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="template-d" style="margin-top: 40px;">
+
+    <!-- HERO (Emerald & Gold — same as Template B) -->
+    <div class="hero-d">
+      <div style="position:absolute;top:10%;left:-5%;width:500px;height:500px;background:radial-gradient(circle,rgba(43,90,27,0.2) 0%,transparent 70%);filter:blur(100px);animation:drift-glow 15s ease-in-out infinite;border-radius:50%;"></div>
+      <div style="position:absolute;bottom:10%;right:-5%;width:400px;height:400px;background:radial-gradient(circle,rgba(201,169,110,0.08) 0%,transparent 70%);filter:blur(80px);animation:drift-glow 18s ease-in-out infinite 3s;border-radius:50%;"></div>
+      <div style="position:absolute;top:15%;bottom:15%;left:50%;width:1px;background:linear-gradient(to bottom,transparent,rgba(201,169,110,0.08),transparent);pointer-events:none;"></div>
+      <div class="z-content">
+        <div class="company-name">EcoFeast Nutrients Pvt. Ltd.</div>
+        <h1>Premium by Nature.<br><span>Powerful by Supply.</span></h1>
+        <p class="subhead">India's trusted exporter of premium agricultural commodities and food products. From farm to port -- quality, reliability, and consistency you can count on.</p>
+        <div class="stats-bar">
+          <div><div class="stat-num">150+</div><div class="stat-label">Trades Completed</div></div>
+          <div><div class="stat-num">45+</div><div class="stat-label">Happy Buyers</div></div>
+          <div><div class="stat-num">12</div><div class="stat-label">Countries Served</div></div>
+          <div><div class="stat-num">11</div><div class="stat-label">Products Exported</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT — GOLD heavy -->
+    <div class="sec-gold">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="sec-content">
+        <div class="label">Who We Are</div>
+        <h2>Built on Trust. <span>Driven by Quality.</span></h2>
+        <p class="desc">EcoFeast Nutrients is an export-focused food and agri-commodities company based in Mumbai, India. We specialize in sourcing, processing, and supplying high-quality agricultural and food products to domestic and international markets.</p>
+      </div>
+    </div>
+
+    <!-- PRODUCTS — GREEN heavy -->
+    <div class="sec-green">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="sec-content">
+        <div class="label">Our Products</div>
+        <h2>Premium Export <span>Catalog</span></h2>
+        <div class="tabs" style="padding: 0 0 24px;">
+          <button class="tab active">All</button>
+          <button class="tab">Fresh Vegetables</button>
+          <button class="tab">Fresh Fruits</button>
+          <button class="tab">Cereals</button>
+          <button class="tab">Spices</button>
+        </div>
+        <div class="product-cards">
+          <div class="product-card-ph" style="background:#1a3a1a;">
+            <div class="img-area"><img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80" alt="Onions"><div class="overlay"></div></div>
+            <div class="body"><div class="name">Fresh Onions</div><div class="cat">Fresh Vegetables</div><div class="price">$280/MT</div></div>
+          </div>
+          <div class="product-card-ph" style="background:#3a2a1a;">
+            <div class="img-area"><img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" alt="Mangoes"><div class="overlay"></div></div>
+            <div class="body"><div class="name">Alphonso Mangoes</div><div class="cat">Fresh Fruits</div><div class="price">$1,200/MT</div></div>
+          </div>
+          <div class="product-card-ph" style="background:#3a2a1a;">
+            <div class="img-area"><img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80" alt="Pomegranates"><div class="overlay"></div></div>
+            <div class="body"><div class="name">Pomegranates</div><div class="cat">Fresh Fruits</div><div class="price">$1,500/MT</div></div>
+          </div>
+          <div class="product-card-ph" style="background:#2a2a1a;">
+            <div class="img-area"><img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80" alt="Rice"><div class="overlay"></div></div>
+            <div class="body"><div class="name">Basmati Rice</div><div class="cat">Cereals</div><div class="price">$950/MT</div></div>
+          </div>
+          <div class="product-card-ph" style="background:#3a1a1a;">
+            <div class="img-area"><img src="https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=400&q=80" alt="Chilly"><div class="overlay"></div></div>
+            <div class="body"><div class="name">Chilly Powder</div><div class="cat">Spices</div><div class="price">$850/MT</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STRENGTHS — GOLD heavy -->
+    <div class="sec-gold">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="sec-content">
+        <div class="label">Why EcoFeast</div>
+        <h2>Our Competitive <span>Edge</span></h2>
+        <div class="strength-grid" style="margin-top: 40px;">
+          <div class="strength-card" style="background:rgba(201,169,110,0.04); border-color: rgba(201,169,110,0.12);">
+            <div class="dot" style="background:var(--eco-gold); box-shadow: 0 0 12px rgba(201,169,110,0.4);"></div>
+            <div style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--eco-cream); font-weight:600; margin-bottom:8px;">Established Supplier</div>
+            <div style="font-size:0.88rem; color:rgba(232,224,208,0.5); line-height:1.6;">Proven track record in fresh onion exports with consistent domestic and international supply chain.</div>
+          </div>
+          <div class="strength-card" style="background:rgba(201,169,110,0.04); border-color: rgba(201,169,110,0.12);">
+            <div class="dot" style="background:var(--eco-gold); box-shadow: 0 0 12px rgba(201,169,110,0.4);"></div>
+            <div style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--eco-cream); font-weight:600; margin-bottom:8px;">Pan-India Sourcing</div>
+            <div style="font-size:0.88rem; color:rgba(232,224,208,0.5); line-height:1.6;">Strong procurement network across major agricultural belts -- Maharashtra, Gujarat, Karnataka.</div>
+          </div>
+          <div class="strength-card" style="background:rgba(201,169,110,0.04); border-color: rgba(201,169,110,0.12);">
+            <div class="dot" style="background:var(--eco-gold); box-shadow: 0 0 12px rgba(201,169,110,0.4);"></div>
+            <div style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--eco-cream); font-weight:600; margin-bottom:8px;">Quality & Safety</div>
+            <div style="font-size:0.88rem; color:rgba(232,224,208,0.5); line-height:1.6;">FSSAI licensed, APEDA registered, with lab testing and inspections per destination country standards.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CERTIFICATIONS — GREEN heavy -->
+    <div class="sec-green">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="sec-content">
+        <div class="label">Compliance</div>
+        <h2>Quality & Regulatory Certifications</h2>
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-top:36px;">
+          <div class="cert-badge" style="background:rgba(43,80,27,0.1); border-color:rgba(43,80,27,0.25); color: #7ab87a;">FSSAI Central License</div>
+          <div class="cert-badge" style="background:rgba(43,80,27,0.1); border-color:rgba(43,80,27,0.25); color: #7ab87a;">APEDA Registration (RCMC)</div>
+          <div class="cert-badge" style="background:rgba(43,80,27,0.1); border-color:rgba(43,80,27,0.25); color: #7ab87a;">Import Export Code (IEC)</div>
+          <div class="cert-badge" style="background:rgba(43,80,27,0.1); border-color:rgba(43,80,27,0.25); color: #7ab87a;">GST Registration</div>
+          <div class="cert-badge" style="background:rgba(43,80,27,0.1); border-color:rgba(43,80,27,0.25); color: #7ab87a;">PAN & Statutory</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GALLERY — GOLD heavy -->
+    <div class="sec-gold">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="sec-content" style="max-width:1200px;">
+        <div class="label">Gallery</div>
+        <h2>Our <span>Gallery</span></h2>
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:12px; margin-top:32px;">
+          <div style="position:relative; border-radius:12px; overflow:hidden; aspect-ratio:4/3;">
+            <img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=600&q=80" alt="" style="width:100%;height:100%;object-fit:cover;">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,110,0.1),rgba(12,26,10,0.2));mix-blend-mode:multiply;"></div>
+          </div>
+          <div style="position:relative; border-radius:12px; overflow:hidden; aspect-ratio:4/3;">
+            <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80" alt="" style="width:100%;height:100%;object-fit:cover;">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,110,0.1),rgba(12,26,10,0.2));mix-blend-mode:multiply;"></div>
+          </div>
+          <div style="position:relative; border-radius:12px; overflow:hidden; aspect-ratio:4/3;">
+            <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=80" alt="" style="width:100%;height:100%;object-fit:cover;">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,110,0.1),rgba(12,26,10,0.2));mix-blend-mode:multiply;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOBAL REACH — GREEN heavy -->
+    <div class="sec-green">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="sec-content">
+        <div class="label">Our Reach</div>
+        <h2>Connecting Indian Farms to <span>Global Tables</span></h2>
+        <p class="desc" style="margin-bottom:32px;">Currently serving domestic markets with active expansion into Africa, the Middle East, Europe, USA, South America, and Asia.</p>
+        <div class="map-placeholder">[ World Map ]</div>
+        <div class="regions">
+          <div class="region-dot"><div class="dot"></div> Africa</div>
+          <div class="region-dot"><div class="dot"></div> Middle East</div>
+          <div class="region-dot"><div class="dot"></div> Europe</div>
+          <div class="region-dot"><div class="dot"></div> USA</div>
+          <div class="region-dot"><div class="dot"></div> South America</div>
+          <div class="region-dot"><div class="dot"></div> Asia</div>
+          <div class="region-dot"><div class="dot" style="background:var(--eco-gold); width:8px; height:8px;"></div> <strong style="color:var(--eco-gold);">India (Home)</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT — GOLD heavy -->
+    <div class="sec-gold">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="sec-content">
+        <div class="label">Let's Connect</div>
+        <h2>Ready to Partner <span>With Us?</span></h2>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:48px; margin-top:48px; align-items:start;">
+          <!-- Contact Info -->
+          <div>
+            <div style="font-size:0.75rem; color:var(--eco-gold); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:12px; font-weight:500;">Directors</div>
+            <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:28px;">
+              <div style="display:flex; gap:12px; align-items:start;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(201,169,110,0.08);border:1px solid rgba(201,169,110,0.15);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--eco-gold);flex-shrink:0;">KC</div>
+                <div>
+                  <div style="font-family:'Playfair Display',serif; font-size:1rem; color:var(--eco-cream); font-weight:600;">Kaustubh Chavan</div>
+                  <div style="font-size:0.78rem; color:rgba(232,224,208,0.5);">Director</div>
+                  <div style="font-size:0.8rem; color:rgba(232,224,208,0.6); margin-top:2px;">+91 96531 56090</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:12px; align-items:start;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(201,169,110,0.08);border:1px solid rgba(201,169,110,0.15);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--eco-gold);flex-shrink:0;">CA</div>
+                <div>
+                  <div style="font-family:'Playfair Display',serif; font-size:1rem; color:var(--eco-cream); font-weight:600;">Chaitanya Asarkar</div>
+                  <div style="font-size:0.78rem; color:rgba(232,224,208,0.5);">Director</div>
+                  <div style="font-size:0.8rem; color:rgba(232,224,208,0.6); margin-top:2px;">+91 83692 95601</div>
+                </div>
+              </div>
+            </div>
+            <div style="background:rgba(201,169,110,0.06); border:1px solid rgba(201,169,110,0.1); border-radius:12px; padding:20px;">
+              <div style="font-size:0.75rem; color:var(--eco-gold); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:10px; font-weight:500;">Packaging & Logistics</div>
+              <div style="font-size:0.85rem; color:rgba(232,224,208,0.55); line-height:1.6;">Bulk packing: 10 kg, 25 kg, 50 kg bags. Custom packing and export-ready labeling. FOB / CIF / CFR shipment support.</div>
+            </div>
+          </div>
+          <!-- Form -->
+          <div class="form-card">
+            <div style="font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--eco-cream); margin-bottom:24px;">Send us an Inquiry</div>
+            <input class="form-input" placeholder="Your name" />
+            <input class="form-input" placeholder="you@company.com" />
+            <input class="form-input" placeholder="Company name" />
+            <textarea class="form-input" rows="3" placeholder="Tell us about your requirements..." style="resize:vertical;"></textarea>
+            <button style="width:100%;background:linear-gradient(135deg,var(--eco-gold),var(--eco-gold-dark));color:var(--eco-dark);border:none;border-radius:10px;padding:14px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.03em;">Send Inquiry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background:#060d05; padding: 40px 24px; text-align:center; border-top: 1px solid rgba(201,169,110,0.08);">
+      <div style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--eco-gold); margin-bottom:8px;">EcoFeast Nutrients Pvt. Ltd.</div>
+      <div style="font-size:0.8rem; color:rgba(232,224,208,0.3);">Premium by Nature. Powerful by Supply.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="close-btn" onclick="closeLightbox()">&times;</button>
+  <img id="lb-img" src="" alt="" onclick="event.stopPropagation()" />
+  <div class="lb-info">
+    <div class="cat-badge" id="lb-cat" style="display:inline-block;background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.25);padding:3px 14px;border-radius:999px;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--eco-gold);margin-bottom:6px;"></div>
+    <div id="lb-title" style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--eco-cream);font-weight:600;"></div>
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<script>
+const IMAGES = [
+  { url: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=800&q=80', title: 'Fresh Red Onions', category: 'Fresh Vegetables', height: 'tall' },
+  { url: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&q=80', title: 'Alphonso Mangoes', category: 'Fresh Fruits', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80', title: 'Premium Pomegranates', category: 'Fresh Fruits', height: 'tall' },
+  { url: 'https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=800&q=80', title: 'Thompson Seedless Grapes', category: 'Fresh Fruits', height: 'short' },
+  { url: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=800&q=80', title: 'Cavendish Bananas', category: 'Fresh Fruits', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=800&q=80', title: 'Green Chillies', category: 'Fresh Vegetables', height: 'short' },
+  { url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80', title: 'Premium Basmati Rice', category: 'Cereals', height: 'tall' },
+  { url: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=800&q=80', title: 'Red Chilly Powder', category: 'Spices', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1666190403330-01e5e45b4e57?w=800&q=80', title: 'Traditional Ladoos', category: 'Processed Foods', height: 'short' },
+  { url: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=800&q=80', title: 'Frozen Sweet Corn', category: 'Frozen', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80', title: 'Frozen Mixed Vegetables', category: 'Frozen', height: 'tall' },
+  { url: 'https://images.unsplash.com/photo-1508747703725-719296a8eb28?w=800&q=80', title: 'Onion Sorting Facility', category: 'Fresh Vegetables', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80', title: 'Farm Harvest', category: 'Fresh Vegetables', height: 'tall' },
+  { url: 'https://images.unsplash.com/photo-1574226516831-e1dff420e562?w=800&q=80', title: 'Turmeric Roots', category: 'Spices', height: 'short' },
+  { url: 'https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=800&q=80', title: 'Pomegranate Seeds', category: 'Fresh Fruits', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80', title: 'Green Peas Frozen', category: 'Frozen', height: 'short' },
+  { url: 'https://images.unsplash.com/photo-1571680322279-a226e6a4cc2a?w=800&q=80', title: 'Spice Collection', category: 'Spices', height: 'tall' },
+  { url: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?w=800&q=80', title: 'Rice Paddy Fields', category: 'Cereals', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1425543103986-22abb7d7e8d2?w=800&q=80', title: 'Banana Plantation', category: 'Fresh Fruits', height: 'tall' },
+  { url: 'https://images.unsplash.com/photo-1590868309235-ea34bed7bd7f?w=800&q=80', title: 'Fresh Vegetables Mix', category: 'Fresh Vegetables', height: 'medium' },
+  { url: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=800&q=80', title: 'Export Packaging', category: 'Processed Foods', height: 'short' },
+];
+
+// ─── Gallery state ───
+const INITIAL_SHOW = 6;   // 3 full first row + 3 in second row (clipped ~50-60% with blur fade)
+const LOAD_MORE = 9;
+let visibleCount = INITIAL_SHOW;
+let activeFilter = 'all';
+let isFirstLoad = true;     // tracks if gallery is still in initial clipped state
+
+function getFilteredImages() {
+  return activeFilter === 'all' ? IMAGES : IMAGES.filter(img => img.category === activeFilter);
+}
+
+function renderGallery() {
+  const grid = document.getElementById('gallery-grid');
+  const wrapper = document.getElementById('gallery-wrapper');
+  const fade = document.getElementById('gallery-fade');
+  const filtered = getFilteredImages();
+  const toShow = filtered.slice(0, visibleCount);
+  grid.innerHTML = '';
+
+  toShow.forEach((img, i) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    item.dataset.category = img.category;
+    item.onclick = () => openLightbox(img);
+    item.style.animation = `fadeSlideUp 0.5s ${i * 0.05}s both`;
+    item.style.opacity = '0';
+    item.innerHTML = `
+      <img src="${img.url}" alt="${img.title}" loading="lazy" />
+      <div class="gallery-overlay"></div>
+      <div class="gallery-info">
+        <div class="cat-badge">${img.category}</div>
+        <div class="gi-title">${img.title}</div>
+      </div>
+    `;
+    grid.appendChild(item);
+  });
+
+  // Clip wrapper on first load to show 2nd row at ~50-60% with blur fade
+  if (isFirstLoad) {
+    wrapper.classList.add('clipped');
+    fade.classList.remove('hidden');
+  } else {
+    wrapper.classList.remove('clipped');
+    const remaining = filtered.length - visibleCount;
+    if (remaining > 0) {
+      // Still more to load — don't fade
+      fade.classList.add('hidden');
+    } else {
+      fade.classList.add('hidden');
+    }
+  }
+
+  // Update count + button
+  const btn = document.getElementById('load-more-btn');
+  const count = document.getElementById('image-count');
+  const remaining = filtered.length - visibleCount;
+  count.textContent = `Showing ${Math.min(visibleCount, filtered.length)} of ${filtered.length} images`;
+
+  if (remaining <= 0) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>All images loaded</span>';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = `<span>Load More (${remaining} remaining)</span><span class="arrow">&#8595;</span>`;
+  }
+}
+
+function loadMore() {
+  isFirstLoad = false;
+  visibleCount += LOAD_MORE;
+  renderGallery();
+}
+
+function filterGallery(category) {
+  activeFilter = category;
+  visibleCount = INITIAL_SHOW;
+  isFirstLoad = true;
+  // Update tab styles
+  document.querySelectorAll('#gallery-tabs .tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.cat === category);
+  });
+  renderGallery();
+}
+
+// Build tabs from categories (dynamic)
+function buildTabs() {
+  const tabsEl = document.getElementById('gallery-tabs');
+  const categories = ['all', ...new Set(IMAGES.map(img => img.category))];
+  tabsEl.innerHTML = '';
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = `tab ${cat === 'all' ? 'active' : ''}`;
+    btn.textContent = cat === 'all' ? 'All' : cat;
+    btn.dataset.cat = cat;
+    btn.onclick = () => filterGallery(cat);
+    tabsEl.appendChild(btn);
+  });
+}
+
+function openLightbox(img) {
+  document.getElementById('lb-img').src = img.url;
+  document.getElementById('lb-cat').textContent = img.category;
+  document.getElementById('lb-title').textContent = img.title;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+
+buildTabs();
+renderGallery();
+</script>
+
+</body>
+</html>

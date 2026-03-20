@@ -45,10 +45,16 @@ public class PublicController : ControllerBase
             .Select(s => new StrengthDto(s.Id, s.Title, s.Description, s.DisplayOrder, s.IsActive))
             .ToListAsync();
 
+        var gallery = await _db.GalleryImages
+            .Where(g => g.IsActive)
+            .OrderByDescending(g => g.CreatedAt)
+            .Select(g => new GalleryImageDto(g.Id, g.Title, g.ImageUrl, g.Category, g.IsActive, g.DisplayOrder, g.CreatedAt))
+            .ToListAsync();
+
         var settings = await _db.SiteSettings
             .ToDictionaryAsync(s => s.Key, s => s.Value);
 
-        return Ok(new SiteDataDto(stats, products, strengths, settings));
+        return Ok(new SiteDataDto(stats, products, strengths, gallery, settings));
     }
 
     /// <summary>
