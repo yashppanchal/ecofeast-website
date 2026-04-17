@@ -7,7 +7,50 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(AppDbContext db)
     {
-        // Only seed if tables are empty
+        // ─── Categories (seed independently — safe to add to existing dbs) ─
+        if (!await db.Categories.AnyAsync())
+        {
+            db.Categories.AddRange(
+                new Category { Name = "Fresh Vegetables", DisplayOrder = 1 },
+                new Category { Name = "Fresh Fruits",     DisplayOrder = 2 },
+                new Category { Name = "Cereals",          DisplayOrder = 3 },
+                new Category { Name = "Spices",           DisplayOrder = 4 },
+                new Category { Name = "Processed Foods",  DisplayOrder = 5 },
+                new Category { Name = "Frozen",           DisplayOrder = 6 }
+            );
+            await db.SaveChangesAsync();
+        }
+
+        // ─── Map Countries (seed independently — safe to add to existing dbs) ─
+        if (!await db.MapCountries.AnyAsync())
+        {
+            db.MapCountries.AddRange(
+                new MapCountry { Name = "India",         Latitude = 22,  Longitude = 78,  IsHome = true,  DisplayOrder = 1 },
+                new MapCountry { Name = "Africa",        Latitude = 5,   Longitude = 20,  DisplayOrder = 2 },
+                new MapCountry { Name = "Middle East",   Latitude = 28,  Longitude = 48,  DisplayOrder = 3 },
+                new MapCountry { Name = "Europe",        Latitude = 50,  Longitude = 15,  DisplayOrder = 4 },
+                new MapCountry { Name = "USA",           Latitude = 40,  Longitude = -95, DisplayOrder = 5 },
+                new MapCountry { Name = "South America", Latitude = -15, Longitude = -58, DisplayOrder = 6 },
+                new MapCountry { Name = "Asia",          Latitude = 35,  Longitude = 105, DisplayOrder = 7 }
+            );
+            await db.SaveChangesAsync();
+        }
+
+        // ─── Testimonials (seed independently — safe to add to existing dbs) ─
+        if (!await db.Testimonials.AnyAsync())
+        {
+            db.Testimonials.AddRange(
+                new Testimonial { Name = "Ahmed Al-Rashid",  Title = "Procurement Head", Company = "Gulf Fresh Trading LLC",  Country = "UAE",    Quote = "EcoFeast has been our trusted partner for Alphonso mangoes for three seasons. Their quality consistency and documentation speed are unmatched in the Indian export market.", Rating = 5, DisplayOrder = 1 },
+                new Testimonial { Name = "Maria Gonzalez",   Title = "Import Director",  Company = "EuroAgro Imports SA",     Country = "Spain",  Quote = "From first inquiry to FOB delivery, the team handles every detail with professionalism. Our pomegranate shipments arrive exactly as specified — every single time.",           Rating = 5, DisplayOrder = 2 },
+                new Testimonial { Name = "Kwame Osei",       Title = "CEO",               Company = "West Africa Commodities", Country = "Ghana",  Quote = "Reliable onion supply at competitive pricing. Kaustubh and his team genuinely understand the African market and adapt their packaging to our climate requirements.",          Rating = 5, DisplayOrder = 3 },
+                new Testimonial { Name = "Hiroshi Tanaka",   Title = "Buyer",             Company = "Osaka Fresh Co.",         Country = "Japan",  Quote = "Exceptional attention to phytosanitary standards. EcoFeast is the only Indian supplier we trust for Basmati rice entering the Japanese market.",                              Rating = 5, DisplayOrder = 4 },
+                new Testimonial { Name = "Sarah Mitchell",   Title = "Sourcing Manager",  Company = "Atlantic Foods USA",      Country = "USA",    Quote = "Transparent pricing, honest communication, and flawless logistics. They turned a complicated cross-border shipment into a routine transaction.",                              Rating = 5, DisplayOrder = 5 },
+                new Testimonial { Name = "Dmitri Volkov",    Title = "Trade Partner",     Company = "EasternLine Group",       Country = "Russia", Quote = "The attention to export documentation and compliance saved us weeks of customs delays. A true professional export house.",                                                Rating = 5, DisplayOrder = 6 }
+            );
+            await db.SaveChangesAsync();
+        }
+
+        // Only seed remaining tables if completely fresh
         if (await db.StatCounters.AnyAsync()) return;
 
         // ─── Stats ─────────────────────────────────────────

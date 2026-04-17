@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAdminProducts, createProduct, updateProduct, deleteProduct, uploadImage } from '../services/api';
+import { getAdminProducts, createProduct, updateProduct, deleteProduct, uploadImage, getAdminCategories } from '../services/api';
 
-const CATEGORIES = ['Fresh Vegetables', 'Fresh Fruits', 'Cereals', 'Spices', 'Processed Foods', 'Frozen'];
+const FALLBACK_CATEGORIES = ['Fresh Vegetables', 'Fresh Fruits', 'Cereals', 'Spices', 'Processed Foods', 'Frozen'];
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR', 'AED'];
 
 const emptyProduct = {
@@ -108,7 +108,13 @@ function ImageUploader({ imageUrl, onUploaded }) {
 }
 
 /* ─── Product Form Fields ──────────────────────────────────── */
-function ProductFormFields({ data, setData, idPrefix }) {
+function ProductFormFields({ data, setData, idPrefix, categories }) {
+  // Include the current product's category even if it's no longer in the list
+  // (so renamed/deleted categories don't silently swap to the first option).
+  const options = data.category && !categories.includes(data.category)
+    ? [data.category, ...categories]
+    : categories;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       <div>
@@ -123,7 +129,7 @@ function ProductFormFields({ data, setData, idPrefix }) {
         <label className="block text-[0.65rem] text-eco-gold uppercase tracking-wider mb-1">Category</label>
         <select value={data.category} onChange={e => setData({ ...data, category: e.target.value })}
                 className={inputClass + ' appearance-none'}>
-          {CATEGORIES.map(c => <option key={c} value={c} className="bg-eco-dark">{c}</option>)}
+          {options.map(c => <option key={c} value={c} className="bg-eco-dark">{c}</option>)}
         </select>
       </div>
       <div>
@@ -169,6 +175,7 @@ function ProductFormFields({ data, setData, idPrefix }) {
 /* ─── Main AdminProducts Page ──────────────────────────────── */
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [creating, setCreating] = useState(false);
@@ -181,7 +188,12 @@ export default function AdminProducts() {
   useEffect(() => { load(); }, []);
 
   async function load() {
-    try { setProducts(await getAdminProducts()); } catch (err) { console.error(err); }
+    try {
+      const [prods, cats] = await Promise.all([getAdminProducts(), getAdminCategories()]);
+      setProducts(prods);
+      const activeNames = cats.filter(c => c.isActive).map(c => c.name);
+      if (activeNames.length > 0) setCategories(activeNames);
+    } catch (err) { console.error(err); }
     finally { setLoading(false); }
   }
 
@@ -230,7 +242,7 @@ export default function AdminProducts() {
         </div>
         {!creating && (
           <button
-            onClick={() => { setForm({ ...emptyProduct, displayOrder: nextOrder }); setCreating(true); }}
+            onClick={() => { setForm({ ...emptyProduct, category: categories[0] || emptyProduct.category, displayOrder: nextOrder }); setCreating(true); }}
             className="bg-eco-gold text-eco-dark px-4 py-2 rounded-lg text-sm font-semibold
                        hover:bg-eco-gold-dark transition-colors"
           >
@@ -244,7 +256,7 @@ export default function AdminProducts() {
       {creating && (
         <div className="bg-white/[0.03] border border-eco-gold/15 rounded-xl p-5 mb-4">
           <div className="text-sm text-eco-gold font-medium mb-3">New Product</div>
-          <ProductFormFields data={form} setData={setForm} idPrefix="create" />
+          <ProductFormFields data={form} setData={setForm} idPrefix="create" categories={categories} />
           <div className="flex gap-2 mt-4">
             <button onClick={handleCreate} disabled={saving}
                     className="bg-eco-gold text-eco-dark px-4 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-50">
@@ -261,7 +273,7 @@ export default function AdminProducts() {
           <div key={p.id} className="bg-white/[0.03] border border-eco-gold/[0.08] rounded-xl p-5">
             {editing?.id === p.id ? (
               <div>
-                <ProductFormFields data={editing} setData={setEditing} idPrefix={`edit-${p.id}`} />
+                <ProductFormFields data={editing} setData={setEditing} idPrefix={`edit-${p.id}`} categories={categories} />
                 <div className="flex gap-2 mt-4">
                   <button onClick={handleUpdate} disabled={saving}
                           className="bg-eco-gold text-eco-dark px-4 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-50">

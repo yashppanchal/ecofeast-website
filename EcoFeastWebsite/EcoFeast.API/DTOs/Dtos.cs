@@ -60,7 +60,7 @@ public record UpdateStrengthDto(
 );
 
 // ─── CONTACT ───────────────────────────────────────────────────
-public record ContactInquiryDto(int Id, string Name, string Email, string Company, string Message, bool IsRead, DateTime CreatedAt);
+public record ContactInquiryDto(int Id, string Name, string Email, string Company, string Message, bool IsRead, bool IsArchived, DateTime CreatedAt);
 
 public record CreateContactDto(
     [Required, MaxLength(150)] string Name,
@@ -117,11 +117,72 @@ public record UpdateGalleryImageDto(
     int DisplayOrder
 );
 
+// ─── CATEGORY ─────────────────────────────────────────────────
+public record CategoryDto(int Id, string Name, int DisplayOrder, bool IsActive);
+
+public record CreateCategoryDto(
+    [Required, MaxLength(50)] string Name,
+    int DisplayOrder
+);
+
+public record UpdateCategoryDto(
+    [Required, MaxLength(50)] string Name,
+    int DisplayOrder,
+    bool IsActive
+);
+
+// ─── MAP COUNTRY ──────────────────────────────────────────────
+public record MapCountryDto(int Id, string Name, double Latitude, double Longitude, bool IsHome, bool IsActive, int DisplayOrder);
+
+public record CreateMapCountryDto(
+    [Required, MaxLength(100)] string Name,
+    double Latitude,
+    double Longitude,
+    bool IsHome,
+    int DisplayOrder
+);
+
+public record UpdateMapCountryDto(
+    [Required, MaxLength(100)] string Name,
+    double Latitude,
+    double Longitude,
+    bool IsHome,
+    bool IsActive,
+    int DisplayOrder
+);
+
+// ─── TESTIMONIAL ──────────────────────────────────────────────
+public record TestimonialDto(int Id, string Name, string Title, string Company, string Country,
+    string Quote, int Rating, bool IsActive, int DisplayOrder);
+
+public record CreateTestimonialDto(
+    [Required, MaxLength(150)] string Name,
+    [MaxLength(150)] string Title,
+    [MaxLength(200)] string Company,
+    [MaxLength(100)] string Country,
+    [Required, MaxLength(1500)] string Quote,
+    [Range(1, 5)] int Rating,
+    int DisplayOrder
+);
+
+public record UpdateTestimonialDto(
+    [Required, MaxLength(150)] string Name,
+    [MaxLength(150)] string Title,
+    [MaxLength(200)] string Company,
+    [MaxLength(100)] string Country,
+    [Required, MaxLength(1500)] string Quote,
+    [Range(1, 5)] int Rating,
+    bool IsActive,
+    int DisplayOrder
+);
+
 // ─── PUBLIC SITE DATA (single endpoint for the frontend) ──────
 public record SiteDataDto(
     List<StatCounterDto> Stats,
     List<ProductDto> Products,
     List<StrengthDto> Strengths,
     List<GalleryImageDto> Gallery,
+    List<MapCountryDto> MapCountries,
+    List<TestimonialDto> Testimonials,
     Dictionary<string, string> Settings
 );

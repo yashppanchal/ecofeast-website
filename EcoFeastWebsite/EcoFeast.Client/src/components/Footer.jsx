@@ -1,3 +1,5 @@
+import SocialLinks from './SocialLinks';
+
 export default function Footer({ settings }) {
   const tagline = settings?.tagline || 'Premium by Nature. Powerful by Supply.';
 
@@ -11,7 +13,8 @@ export default function Footer({ settings }) {
         <div className="text-[0.72rem] tracking-[0.15em] text-eco-cream/30 uppercase mb-5">
           {tagline}
         </div>
-        <div className="text-[0.78rem] text-eco-cream/25">
+        <SocialLinks settings={settings} size="sm" />
+        <div className="text-[0.78rem] text-eco-cream/25 mt-5">
           &copy; {new Date().getFullYear()} EcoFeast Nutrients Pvt. Ltd. All rights reserved. &middot; Mumbai, India
         </div>
       </div>

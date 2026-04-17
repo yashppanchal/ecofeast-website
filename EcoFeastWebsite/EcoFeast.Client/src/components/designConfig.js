@@ -9,7 +9,7 @@
 // DesignC  — Botanical hero + warmer gold-tinted sections (A + B combined)
 // DesignD  — Alternating green-heavy / gold-heavy sections
 //
-export const SITE_DESIGN = 'DesignB';
+export const SITE_DESIGN = 'DesignA';
 
 // Hero design mapping (which hero variant each template uses)
 export function getHeroDesign() {

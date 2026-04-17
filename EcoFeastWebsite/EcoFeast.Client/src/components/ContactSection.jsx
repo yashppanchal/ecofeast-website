@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useInView } from '../hooks/useAnimations';
 import { submitContact } from '../services/api';
+import SocialLinks from './SocialLinks';
 
 export default function ContactSection({ settings }) {
   const [contactRef, contactInView] = useInView(0.2);
@@ -116,6 +117,8 @@ export default function ContactSection({ settings }) {
                 </div>
               ))}
             </div>
+
+            <SocialLinks settings={settings} size="md" />
 
             <div className="mt-8 bg-eco-gold/[0.06] border border-eco-gold/10 rounded-xl p-5">
               <div className="text-[0.75rem] text-eco-gold tracking-[0.15em] uppercase mb-2.5 font-medium">

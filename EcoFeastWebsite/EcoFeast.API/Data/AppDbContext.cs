@@ -14,6 +14,9 @@ public class AppDbContext : DbContext
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<GalleryImage> GalleryImages => Set<GalleryImage>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<MapCountry> MapCountries => Set<MapCountry>();
+    public DbSet<Testimonial> Testimonials => Set<Testimonial>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +30,16 @@ public class AppDbContext : DbContext
         // Unique constraint on admin username
         modelBuilder.Entity<AdminUser>()
             .HasIndex(a => a.Username)
+            .IsUnique();
+
+        // Unique constraint on category name
+        modelBuilder.Entity<Category>()
+            .HasIndex(c => c.Name)
+            .IsUnique();
+
+        // Unique constraint on map country name
+        modelBuilder.Entity<MapCountry>()
+            .HasIndex(c => c.Name)
             .IsUnique();
     }
 }

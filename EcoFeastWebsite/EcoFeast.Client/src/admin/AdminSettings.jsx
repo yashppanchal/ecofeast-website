@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getSettings, updateSetting } from '../services/api';
+import { getSettings, updateSetting, deleteSetting } from '../services/api';
 
 const SETTING_LABELS = {
   tagline: 'Tagline',
@@ -47,6 +47,15 @@ export default function AdminSettings() {
       await load();
     } catch { flash('Failed to update'); }
     finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id, key) => {
+    if (!window.confirm(`Delete setting "${key}"?`)) return;
+    try {
+      await deleteSetting(id);
+      flash('Setting deleted');
+      await load();
+    } catch { flash('Failed to delete'); }
   };
 
   const handleAddNew = async () => {
@@ -112,13 +121,22 @@ export default function AdminSettings() {
                   </div>
                   <div className="text-sm text-eco-cream/70 truncate">{s.value}</div>
                 </div>
-                <button
-                  onClick={() => { setEditing(s.key); setEditValue(s.value); }}
-                  className="text-eco-gold/50 hover:text-eco-gold text-sm px-3 py-1.5 rounded-lg
-                             hover:bg-eco-gold/10 transition-colors shrink-0"
-                >
-                  Edit
-                </button>
+                <div className="flex gap-1 shrink-0">
+                  <button
+                    onClick={() => { setEditing(s.key); setEditValue(s.value); }}
+                    className="text-eco-gold/50 hover:text-eco-gold text-sm px-3 py-1.5 rounded-lg
+                               hover:bg-eco-gold/10 transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(s.id, s.key)}
+                    className="text-red-400/50 hover:text-red-400 text-sm px-3 py-1.5 rounded-lg
+                               hover:bg-red-400/10 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -93,6 +93,8 @@ public class ContactInquiry
 
     public bool IsRead { get; set; } = false;
 
+    public bool IsArchived { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
@@ -126,6 +128,71 @@ public class GalleryImage
 
     [Required, MaxLength(50)]
     public string Category { get; set; } = string.Empty; // Reuses product categories
+
+    public bool IsActive { get; set; } = true;
+
+    public int DisplayOrder { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+// ─── MAP COUNTRY (marker on the global reach map) ─────────────
+public class MapCountry
+{
+    public int Id { get; set; }
+
+    [Required, MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
+
+    public double Latitude { get; set; }
+
+    public double Longitude { get; set; }
+
+    public bool IsHome { get; set; } = false;
+
+    public bool IsActive { get; set; } = true;
+
+    public int DisplayOrder { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+// ─── CATEGORY (product category, dynamic via admin) ───────────
+public class Category
+{
+    public int Id { get; set; }
+
+    [Required, MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
+
+    public int DisplayOrder { get; set; }
+
+    public bool IsActive { get; set; } = true;
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+// ─── TESTIMONIAL (buyer quote) ────────────────────────────────
+public class Testimonial
+{
+    public int Id { get; set; }
+
+    [Required, MaxLength(150)]
+    public string Name { get; set; } = string.Empty;
+
+    [MaxLength(150)]
+    public string Title { get; set; } = string.Empty; // e.g. "Procurement Head"
+
+    [MaxLength(200)]
+    public string Company { get; set; } = string.Empty;
+
+    [MaxLength(100)]
+    public string Country { get; set; } = string.Empty;
+
+    [Required, MaxLength(1500)]
+    public string Quote { get; set; } = string.Empty;
+
+    public int Rating { get; set; } = 5; // 1-5
 
     public bool IsActive { get; set; } = true;
 

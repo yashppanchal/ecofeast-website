@@ -1,8 +1,12 @@
 import { useInView } from '../hooks/useAnimations';
-import WorldMap, { REGIONS } from './WorldMap';
+import WorldMap from './WorldMap';
 
-export default function GlobalReachSection() {
+export default function GlobalReachSection({ countries = [] }) {
   const [mapRef, mapInView] = useInView(0.2);
+
+  const active = countries.filter(c => c.isActive !== false);
+  const home = active.find(c => c.isHome);
+  const targets = active.filter(c => !c.isHome);
 
   return (
     <section
@@ -23,7 +27,9 @@ export default function GlobalReachSection() {
           <span className="text-eco-gold">Global Tables</span>
         </h2>
         <p className="text-[0.95rem] text-eco-cream/50 mb-12 max-w-[550px] mx-auto">
-          Currently serving domestic markets with active expansion into Africa, the Middle East, Europe, USA, South America, and Asia.
+          {targets.length > 0
+            ? <>Currently serving domestic markets with active expansion into {targets.map(t => t.name).join(', ')}.</>
+            : 'Currently serving domestic markets with active expansion across global destinations.'}
         </p>
 
         <div
@@ -33,20 +39,22 @@ export default function GlobalReachSection() {
             opacity: 0,
           }}
         >
-          <WorldMap />
+          <WorldMap countries={countries} />
         </div>
 
         <div className="flex flex-wrap justify-center gap-6 mt-8">
-          {REGIONS.filter(r => !r.home).map(r => (
-            <div key={r.name} className="flex items-center gap-1.5">
+          {targets.map(r => (
+            <div key={r.id ?? r.name} className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-eco-gold/60" />
               <span className="text-[0.8rem] text-eco-cream/50 tracking-wide">{r.name}</span>
             </div>
           ))}
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-eco-gold" />
-            <span className="text-[0.8rem] text-eco-gold font-semibold tracking-wide">India (Home)</span>
-          </div>
+          {home && (
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-eco-gold" />
+              <span className="text-[0.8rem] text-eco-gold font-semibold tracking-wide">{home.name} (Home)</span>
+            </div>
+          )}
         </div>
       </div>
     </section>

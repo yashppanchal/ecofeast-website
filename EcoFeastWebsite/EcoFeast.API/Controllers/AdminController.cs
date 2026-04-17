@@ -150,6 +150,210 @@ public class AdminController : ControllerBase
     }
 
     // ═══════════════════════════════════════════════════════════
+    // MAP COUNTRIES
+    // ═══════════════════════════════════════════════════════════
+
+    [HttpGet("mapcountries")]
+    public async Task<ActionResult<List<MapCountryDto>>> GetMapCountries()
+    {
+        var items = await _db.MapCountries
+            .OrderBy(m => m.DisplayOrder)
+            .Select(m => new MapCountryDto(m.Id, m.Name, m.Latitude, m.Longitude, m.IsHome, m.IsActive, m.DisplayOrder))
+            .ToListAsync();
+        return Ok(items);
+    }
+
+    [HttpPost("mapcountries")]
+    public async Task<ActionResult> CreateMapCountry([FromBody] CreateMapCountryDto dto)
+    {
+        if (await _db.MapCountries.AnyAsync(m => m.Name == dto.Name))
+            return BadRequest(new { message = "A country with this name already exists" });
+
+        // If this one is marked home, clear any previous home
+        if (dto.IsHome)
+        {
+            var currentHome = await _db.MapCountries.Where(m => m.IsHome).ToListAsync();
+            foreach (var h in currentHome) h.IsHome = false;
+        }
+
+        var item = new MapCountry
+        {
+            Name = dto.Name,
+            Latitude = dto.Latitude,
+            Longitude = dto.Longitude,
+            IsHome = dto.IsHome,
+            DisplayOrder = dto.DisplayOrder
+        };
+        _db.MapCountries.Add(item);
+        await _db.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetMapCountries), new { id = item.Id }, item);
+    }
+
+    [HttpPut("mapcountries/{id}")]
+    public async Task<ActionResult> UpdateMapCountry(int id, [FromBody] UpdateMapCountryDto dto)
+    {
+        var item = await _db.MapCountries.FindAsync(id);
+        if (item == null) return NotFound();
+
+        if (await _db.MapCountries.AnyAsync(m => m.Name == dto.Name && m.Id != id))
+            return BadRequest(new { message = "A country with this name already exists" });
+
+        // If this one is becoming home, clear other homes
+        if (dto.IsHome && !item.IsHome)
+        {
+            var otherHomes = await _db.MapCountries.Where(m => m.IsHome && m.Id != id).ToListAsync();
+            foreach (var h in otherHomes) h.IsHome = false;
+        }
+
+        item.Name = dto.Name;
+        item.Latitude = dto.Latitude;
+        item.Longitude = dto.Longitude;
+        item.IsHome = dto.IsHome;
+        item.IsActive = dto.IsActive;
+        item.DisplayOrder = dto.DisplayOrder;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Country updated" });
+    }
+
+    [HttpDelete("mapcountries/{id}")]
+    public async Task<ActionResult> DeleteMapCountry(int id)
+    {
+        var item = await _db.MapCountries.FindAsync(id);
+        if (item == null) return NotFound();
+
+        _db.MapCountries.Remove(item);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Country deleted" });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // TESTIMONIALS
+    // ═══════════════════════════════════════════════════════════
+
+    [HttpGet("testimonials")]
+    public async Task<ActionResult<List<TestimonialDto>>> GetTestimonials()
+    {
+        var items = await _db.Testimonials
+            .OrderBy(t => t.DisplayOrder)
+            .Select(t => new TestimonialDto(t.Id, t.Name, t.Title, t.Company, t.Country, t.Quote, t.Rating, t.IsActive, t.DisplayOrder))
+            .ToListAsync();
+        return Ok(items);
+    }
+
+    [HttpPost("testimonials")]
+    public async Task<ActionResult> CreateTestimonial([FromBody] CreateTestimonialDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var item = new Testimonial
+        {
+            Name = dto.Name,
+            Title = dto.Title ?? "",
+            Company = dto.Company ?? "",
+            Country = dto.Country ?? "",
+            Quote = dto.Quote,
+            Rating = dto.Rating,
+            DisplayOrder = dto.DisplayOrder
+        };
+        _db.Testimonials.Add(item);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Testimonial added", id = item.Id });
+    }
+
+    [HttpPut("testimonials/{id}")]
+    public async Task<ActionResult> UpdateTestimonial(int id, [FromBody] UpdateTestimonialDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var item = await _db.Testimonials.FindAsync(id);
+        if (item == null) return NotFound();
+
+        item.Name = dto.Name;
+        item.Title = dto.Title ?? "";
+        item.Company = dto.Company ?? "";
+        item.Country = dto.Country ?? "";
+        item.Quote = dto.Quote;
+        item.Rating = dto.Rating;
+        item.IsActive = dto.IsActive;
+        item.DisplayOrder = dto.DisplayOrder;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Testimonial updated" });
+    }
+
+    [HttpDelete("testimonials/{id}")]
+    public async Task<ActionResult> DeleteTestimonial(int id)
+    {
+        var item = await _db.Testimonials.FindAsync(id);
+        if (item == null) return NotFound();
+
+        _db.Testimonials.Remove(item);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Testimonial deleted" });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CATEGORIES
+    // ═══════════════════════════════════════════════════════════
+
+    [HttpGet("categories")]
+    public async Task<ActionResult<List<CategoryDto>>> GetCategories()
+    {
+        var items = await _db.Categories
+            .OrderBy(c => c.DisplayOrder)
+            .Select(c => new CategoryDto(c.Id, c.Name, c.DisplayOrder, c.IsActive))
+            .ToListAsync();
+        return Ok(items);
+    }
+
+    [HttpPost("categories")]
+    public async Task<ActionResult> CreateCategory([FromBody] CreateCategoryDto dto)
+    {
+        if (await _db.Categories.AnyAsync(c => c.Name == dto.Name))
+            return BadRequest(new { message = "A category with this name already exists" });
+
+        var item = new Category
+        {
+            Name = dto.Name,
+            DisplayOrder = dto.DisplayOrder
+        };
+        _db.Categories.Add(item);
+        await _db.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetCategories), new { id = item.Id }, item);
+    }
+
+    [HttpPut("categories/{id}")]
+    public async Task<ActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto dto)
+    {
+        var item = await _db.Categories.FindAsync(id);
+        if (item == null) return NotFound();
+
+        if (await _db.Categories.AnyAsync(c => c.Name == dto.Name && c.Id != id))
+            return BadRequest(new { message = "A category with this name already exists" });
+
+        item.Name = dto.Name;
+        item.DisplayOrder = dto.DisplayOrder;
+        item.IsActive = dto.IsActive;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Category updated" });
+    }
+
+    [HttpDelete("categories/{id}")]
+    public async Task<ActionResult> DeleteCategory(int id)
+    {
+        var item = await _db.Categories.FindAsync(id);
+        if (item == null) return NotFound();
+
+        // Frontend confirms with the user before calling delete; products that
+        // referenced this category by name keep the old string (intentional).
+        _db.Categories.Remove(item);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Category deleted" });
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // STRENGTHS
     // ═══════════════════════════════════════════════════════════
 
@@ -271,7 +475,7 @@ public class AdminController : ControllerBase
     {
         var items = await _db.ContactInquiries
             .OrderByDescending(c => c.CreatedAt)
-            .Select(c => new ContactInquiryDto(c.Id, c.Name, c.Email, c.Company, c.Message, c.IsRead, c.CreatedAt))
+            .Select(c => new ContactInquiryDto(c.Id, c.Name, c.Email, c.Company, c.Message, c.IsRead, c.IsArchived, c.CreatedAt))
             .ToListAsync();
         return Ok(items);
     }
@@ -285,6 +489,50 @@ public class AdminController : ControllerBase
         inquiry.IsRead = true;
         await _db.SaveChangesAsync();
         return Ok(new { message = "Marked as read" });
+    }
+
+    [HttpPut("inquiries/{id}/unread")]
+    public async Task<ActionResult> MarkAsUnread(int id)
+    {
+        var inquiry = await _db.ContactInquiries.FindAsync(id);
+        if (inquiry == null) return NotFound();
+
+        inquiry.IsRead = false;
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Marked as unread" });
+    }
+
+    [HttpPut("inquiries/{id}/archive")]
+    public async Task<ActionResult> ArchiveInquiry(int id)
+    {
+        var inquiry = await _db.ContactInquiries.FindAsync(id);
+        if (inquiry == null) return NotFound();
+
+        inquiry.IsArchived = true;
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Archived" });
+    }
+
+    [HttpPut("inquiries/{id}/unarchive")]
+    public async Task<ActionResult> UnarchiveInquiry(int id)
+    {
+        var inquiry = await _db.ContactInquiries.FindAsync(id);
+        if (inquiry == null) return NotFound();
+
+        inquiry.IsArchived = false;
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Restored" });
+    }
+
+    [HttpDelete("inquiries/{id}")]
+    public async Task<ActionResult> DeleteInquiry(int id)
+    {
+        var inquiry = await _db.ContactInquiries.FindAsync(id);
+        if (inquiry == null) return NotFound();
+
+        _db.ContactInquiries.Remove(inquiry);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Deleted" });
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -316,6 +564,16 @@ public class AdminController : ControllerBase
 
         await _db.SaveChangesAsync();
         return Ok(new { message = "Setting updated" });
+    }
+
+    [HttpDelete("settings/{id}")]
+    public async Task<ActionResult> DeleteSetting(int id)
+    {
+        var setting = await _db.SiteSettings.FindAsync(id);
+        if (setting == null) return NotFound();
+        _db.SiteSettings.Remove(setting);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Setting deleted" });
     }
 
     // ═══════════════════════════════════════════════════════════

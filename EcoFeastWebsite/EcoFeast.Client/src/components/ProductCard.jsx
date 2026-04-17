@@ -139,7 +139,7 @@ function ScrollCard({ product, index, inView }) {
               {price}{product.priceUnit && <span className="text-[0.65rem] opacity-50">{product.priceUnit}</span>}
             </div>
           )}
-          <div className="text-[0.65rem] text-eco-cream/25 font-mono">
+          <div className="text-[0.85rem] text-eco-gold font-semibold font-mono">
             HS: {product.hsCode}
           </div>
         </div>
@@ -218,11 +218,13 @@ function BentoCard({ product, index, inView, featured }) {
           </div>
         )}
         {/* Details expand on hover */}
-        <div className="max-h-0 overflow-hidden transition-all duration-300 group-hover:max-h-[50px]">
-          <div className="text-[0.68rem] text-eco-cream/40 mt-1">
+        <div className="max-h-0 overflow-hidden transition-all duration-300 group-hover:max-h-[60px]">
+          <div className="text-[0.85rem] text-eco-gold font-semibold font-mono mt-1">
             HS: {product.hsCode}
-            {product.description && <> &mdash; {product.description}</>}
           </div>
+          {product.description && (
+            <div className="text-[0.68rem] text-eco-cream/40 mt-0.5">{product.description}</div>
+          )}
         </div>
       </div>
     </div>

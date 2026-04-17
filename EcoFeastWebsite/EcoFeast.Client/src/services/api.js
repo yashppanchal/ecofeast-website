@@ -82,6 +82,92 @@ export async function markInquiryRead(id) {
   return data;
 }
 
+export async function markInquiryUnread(id) {
+  const { data } = await api.put(`/admin/inquiries/${id}/unread`, {}, { headers: authHeaders() });
+  return data;
+}
+
+export async function archiveInquiry(id) {
+  const { data } = await api.put(`/admin/inquiries/${id}/archive`, {}, { headers: authHeaders() });
+  return data;
+}
+
+export async function unarchiveInquiry(id) {
+  const { data } = await api.put(`/admin/inquiries/${id}/unarchive`, {}, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteInquiry(id) {
+  const { data } = await api.delete(`/admin/inquiries/${id}`, { headers: authHeaders() });
+  return data;
+}
+
+// ─── MAP COUNTRIES (Admin) ──────────────────────────────────
+
+export async function getAdminMapCountries() {
+  const { data } = await api.get('/admin/mapcountries', { headers: authHeaders() });
+  return data;
+}
+
+export async function createMapCountry(countryData) {
+  const { data } = await api.post('/admin/mapcountries', countryData, { headers: authHeaders() });
+  return data;
+}
+
+export async function updateMapCountry(id, countryData) {
+  const { data } = await api.put(`/admin/mapcountries/${id}`, countryData, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteMapCountry(id) {
+  const { data } = await api.delete(`/admin/mapcountries/${id}`, { headers: authHeaders() });
+  return data;
+}
+
+// ─── CATEGORIES (Admin) ─────────────────────────────────────
+
+export async function getAdminCategories() {
+  const { data } = await api.get('/admin/categories', { headers: authHeaders() });
+  return data;
+}
+
+export async function createCategory(categoryData) {
+  const { data } = await api.post('/admin/categories', categoryData, { headers: authHeaders() });
+  return data;
+}
+
+export async function updateCategory(id, categoryData) {
+  const { data } = await api.put(`/admin/categories/${id}`, categoryData, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteCategory(id) {
+  const { data } = await api.delete(`/admin/categories/${id}`, { headers: authHeaders() });
+  return data;
+}
+
+// ─── TESTIMONIALS (Admin) ───────────────────────────────────
+
+export async function getAdminTestimonials() {
+  const { data } = await api.get('/admin/testimonials', { headers: authHeaders() });
+  return data;
+}
+
+export async function createTestimonial(testimonialData) {
+  const { data } = await api.post('/admin/testimonials', testimonialData, { headers: authHeaders() });
+  return data;
+}
+
+export async function updateTestimonial(id, testimonialData) {
+  const { data } = await api.put(`/admin/testimonials/${id}`, testimonialData, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteTestimonial(id) {
+  const { data } = await api.delete(`/admin/testimonials/${id}`, { headers: authHeaders() });
+  return data;
+}
+
 // ─── STRENGTHS (Admin) ──────────────────────────────────────
 
 export async function getAdminStrengths() {
@@ -135,6 +221,11 @@ export async function getSettings() {
 
 export async function updateSetting(key, value) {
   const { data } = await api.put('/admin/settings', { key, value }, { headers: authHeaders() });
+  return data;
+}
+
+export async function deleteSetting(id) {
+  const { data } = await api.delete(`/admin/settings/${id}`, { headers: authHeaders() });
   return data;
 }
 

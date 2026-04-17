@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
-import { getInquiries, markInquiryRead } from '../services/api';
+import {
+  getInquiries,
+  markInquiryRead,
+  markInquiryUnread,
+  archiveInquiry,
+  unarchiveInquiry,
+  deleteInquiry,
+} from '../services/api';
 
 export default function AdminInquiries() {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
-  const [filter, setFilter] = useState('all'); // all | unread | read
+  const [filter, setFilter] = useState('all'); // all | unread | read | archived
 
   useEffect(() => { load(); }, []);
 
@@ -15,19 +22,38 @@ export default function AdminInquiries() {
   }
 
   const handleMarkRead = async (id) => {
-    try {
-      await markInquiryRead(id);
-      await load();
-    } catch (err) { console.error(err); }
+    try { await markInquiryRead(id); await load(); } catch (err) { console.error(err); }
   };
 
+  const handleMarkUnread = async (id) => {
+    try { await markInquiryUnread(id); await load(); } catch (err) { console.error(err); }
+  };
+
+  const handleArchive = async (id) => {
+    try { await archiveInquiry(id); await load(); } catch (err) { console.error(err); }
+  };
+
+  const handleRestore = async (id) => {
+    try { await unarchiveInquiry(id); await load(); } catch (err) { console.error(err); }
+  };
+
+  const handleDelete = async (id, name) => {
+    if (!confirm(`Permanently delete inquiry from "${name}"? This cannot be undone.`)) return;
+    try { await deleteInquiry(id); await load(); } catch (err) { console.error(err); }
+  };
+
+  // Filter logic: archived items only show in 'archived' tab; other tabs exclude them
   const filtered = inquiries.filter(i => {
+    if (filter === 'archived') return i.isArchived;
+    if (i.isArchived) return false;
     if (filter === 'unread') return !i.isRead;
     if (filter === 'read') return i.isRead;
-    return true;
+    return true; // all
   });
 
-  const unreadCount = inquiries.filter(i => !i.isRead).length;
+  const activeInquiries = inquiries.filter(i => !i.isArchived);
+  const unreadCount = activeInquiries.filter(i => !i.isRead).length;
+  const archivedCount = inquiries.filter(i => i.isArchived).length;
 
   if (loading) return <div className="text-eco-cream/40 text-sm">Loading...</div>;
 
@@ -37,17 +63,18 @@ export default function AdminInquiries() {
         <div>
           <h1 className="font-display text-2xl text-eco-cream font-bold">Inquiries</h1>
           <p className="text-eco-cream/40 text-sm">
-            {inquiries.length} total &middot; {unreadCount} unread
+            {activeInquiries.length} active &middot; {unreadCount} unread &middot; {archivedCount} archived
           </p>
         </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 mb-5">
+      <div className="flex gap-1 mb-5 flex-wrap">
         {[
-          { key: 'all', label: `All (${inquiries.length})` },
+          { key: 'all', label: `All (${activeInquiries.length})` },
           { key: 'unread', label: `Unread (${unreadCount})` },
           { key: 'read', label: 'Read' },
+          { key: 'archived', label: `Archived (${archivedCount})` },
         ].map(f => (
           <button
             key={f.key}
@@ -73,17 +100,26 @@ export default function AdminInquiries() {
             <div
               key={inq.id}
               className={`bg-white/[0.03] border rounded-xl overflow-hidden transition-colors cursor-pointer ${
-                inq.isRead ? 'border-eco-gold/[0.06]' : 'border-eco-gold/20 bg-eco-gold/[0.02]'
+                inq.isArchived
+                  ? 'border-eco-cream/[0.06] opacity-70'
+                  : inq.isRead
+                  ? 'border-eco-gold/[0.06]'
+                  : 'border-eco-gold/20 bg-eco-gold/[0.02]'
               }`}
               onClick={() => setExpanded(expanded === inq.id ? null : inq.id)}
             >
               <div className="p-4 flex items-center gap-3">
-                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${inq.isRead ? 'bg-eco-cream/15' : 'bg-eco-gold'}`} />
+                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                  inq.isArchived ? 'bg-eco-cream/10' : inq.isRead ? 'bg-eco-cream/15' : 'bg-eco-gold'
+                }`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-eco-cream font-medium">{inq.name}</span>
                     {inq.company && (
                       <span className="text-xs text-eco-cream/30 bg-white/[0.04] px-2 py-0.5 rounded">{inq.company}</span>
+                    )}
+                    {inq.isArchived && (
+                      <span className="text-[0.6rem] text-eco-cream/40 bg-white/[0.04] px-2 py-0.5 rounded uppercase tracking-wider">Archived</span>
                     )}
                   </div>
                   <div className="text-xs text-eco-cream/40">{inq.email}</div>
@@ -98,21 +134,50 @@ export default function AdminInquiries() {
                   <div className="mt-3 bg-white/[0.03] rounded-lg p-4 text-sm text-eco-cream/70 leading-relaxed whitespace-pre-wrap">
                     {inq.message}
                   </div>
-                  <div className="flex gap-2 mt-3">
-                    {!inq.isRead && (
+                  <div className="flex gap-2 mt-3 flex-wrap">
+                    {!inq.isArchived && !inq.isRead && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleMarkRead(inq.id); }}
-                        className="bg-eco-gold/10 text-eco-gold px-3 py-1.5 rounded-lg text-xs font-medium
-                                   hover:bg-eco-gold/20 transition-colors"
+                        className="bg-eco-gold/10 text-eco-gold px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-eco-gold/20 transition-colors"
                       >
                         Mark as read
                       </button>
                     )}
+                    {!inq.isArchived && inq.isRead && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleMarkUnread(inq.id); }}
+                        className="bg-white/[0.05] text-eco-cream/60 px-3 py-1.5 rounded-lg text-xs hover:text-eco-cream/80 transition-colors"
+                      >
+                        Mark as unread
+                      </button>
+                    )}
+                    {!inq.isArchived ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleArchive(inq.id); }}
+                        className="bg-white/[0.05] text-eco-cream/60 px-3 py-1.5 rounded-lg text-xs hover:text-eco-cream/80 transition-colors"
+                      >
+                        Archive
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleRestore(inq.id); }}
+                          className="bg-eco-gold/10 text-eco-gold px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-eco-gold/20 transition-colors"
+                        >
+                          Restore
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(inq.id, inq.name); }}
+                          className="bg-red-400/10 text-red-400 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-400/20 transition-colors"
+                        >
+                          Delete forever
+                        </button>
+                      </>
+                    )}
                     <a
                       href={`mailto:${inq.email}?subject=Re: Your inquiry to EcoFeast Nutrients`}
                       onClick={(e) => e.stopPropagation()}
-                      className="bg-white/[0.05] text-eco-cream/60 px-3 py-1.5 rounded-lg text-xs
-                                 hover:text-eco-cream/80 transition-colors"
+                      className="bg-white/[0.05] text-eco-cream/60 px-3 py-1.5 rounded-lg text-xs hover:text-eco-cream/80 transition-colors ml-auto"
                     >
                       Reply via email
                     </a>

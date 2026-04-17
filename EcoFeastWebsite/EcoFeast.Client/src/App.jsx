@@ -14,17 +14,23 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
 import SectionWrapper from './components/SectionWrapper';
+import TestimonialsSection from './components/TestimonialsSection';
 
 import AdminLogin from './admin/AdminLogin';
 import AdminLayout from './admin/AdminLayout';
 import AdminDashboard from './admin/AdminDashboard';
 import AdminStats from './admin/AdminStats';
 import AdminProducts from './admin/AdminProducts';
+import AdminCategories from './admin/AdminCategories';
 import AdminStrengths from './admin/AdminStrengths';
 import AdminInquiries from './admin/AdminInquiries';
 import AdminSettings from './admin/AdminSettings';
 import AdminUsers from './admin/AdminUsers';
 import AdminGallery from './admin/AdminGallery';
+import AdminMapCountries from './admin/AdminMapCountries';
+import AdminTestimonials from './admin/AdminTestimonials';
+
+import { DEFAULT_MAP_COUNTRIES } from './components/defaultMapCountries';
 
 // ─── Fallback data (used if API is unreachable during dev) ─────
 const FALLBACK = {
@@ -56,6 +62,13 @@ const FALLBACK = {
     { id: 6, title: 'Long-term Partners', description: 'We build relationships, not transactions. Flexible planning, repeat supply, and after-sales coordination.', displayOrder: 6 },
   ],
   gallery: [],
+  mapCountries: DEFAULT_MAP_COUNTRIES,
+  testimonials: [
+    { id: 1, name: 'Ahmed Al-Rashid',  title: 'Procurement Head', company: 'Gulf Fresh Trading LLC',  country: 'UAE',    quote: 'EcoFeast has been our trusted partner for Alphonso mangoes for three seasons. Their quality consistency and documentation speed are unmatched in the Indian export market.', rating: 5, isActive: true, displayOrder: 1 },
+    { id: 2, name: 'Maria Gonzalez',   title: 'Import Director',  company: 'EuroAgro Imports SA',     country: 'Spain',  quote: 'From first inquiry to FOB delivery, the team handles every detail with professionalism. Our pomegranate shipments arrive exactly as specified — every single time.', rating: 5, isActive: true, displayOrder: 2 },
+    { id: 3, name: 'Kwame Osei',       title: 'CEO',              company: 'West Africa Commodities', country: 'Ghana',  quote: 'Reliable onion supply at competitive pricing. Kaustubh and his team genuinely understand the African market and adapt their packaging to our climate requirements.', rating: 5, isActive: true, displayOrder: 3 },
+    { id: 4, name: 'Sarah Mitchell',   title: 'Sourcing Manager', company: 'Atlantic Foods USA',      country: 'USA',    quote: 'Transparent pricing, honest communication, and flawless logistics. They turned a complicated cross-border shipment into a routine transaction.', rating: 5, isActive: true, displayOrder: 4 },
+  ],
   settings: {
     phone: '+91 96531 56090',
     email: 'ecofeastnutrients@gmail.com',
@@ -97,10 +110,11 @@ function Website() {
       <SectionWrapper index={0}><AboutSection /></SectionWrapper>
       <SectionWrapper index={1}><ProductsSection products={data.products} /></SectionWrapper>
       <SectionWrapper index={2}><StrengthsSection strengths={data.strengths} /></SectionWrapper>
-      <SectionWrapper index={3}><CertificationsSection /></SectionWrapper>
-      <SectionWrapper index={4}><GallerySection gallery={data.gallery || []} /></SectionWrapper>
-      <SectionWrapper index={5}><GlobalReachSection /></SectionWrapper>
-      <SectionWrapper index={6}><ContactSection settings={data.settings} /></SectionWrapper>
+      <SectionWrapper index={3}><TestimonialsSection testimonials={data.testimonials || []} /></SectionWrapper>
+      <SectionWrapper index={4}><CertificationsSection /></SectionWrapper>
+      <SectionWrapper index={5}><GallerySection gallery={data.gallery || []} /></SectionWrapper>
+      <SectionWrapper index={6}><GlobalReachSection countries={data.mapCountries && data.mapCountries.length > 0 ? data.mapCountries : DEFAULT_MAP_COUNTRIES} /></SectionWrapper>
+      <SectionWrapper index={7}><ContactSection settings={data.settings} /></SectionWrapper>
       <Footer settings={data.settings} />
     </div>
   );
@@ -114,6 +128,7 @@ export default function App() {
         {/* Public website */}
         <Route path="/" element={<Website />} />
 
+
         {/* Admin login */}
         <Route path="/admin/login" element={<AdminLogin />} />
 
@@ -122,6 +137,9 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="stats" element={<AdminStats />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="map-countries" element={<AdminMapCountries />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="strengths" element={<AdminStrengths />} />
           <Route path="gallery" element={<AdminGallery />} />
           <Route path="inquiries" element={<AdminInquiries />} />

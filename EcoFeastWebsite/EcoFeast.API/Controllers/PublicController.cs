@@ -51,10 +51,22 @@ public class PublicController : ControllerBase
             .Select(g => new GalleryImageDto(g.Id, g.Title, g.ImageUrl, g.Category, g.IsActive, g.DisplayOrder, g.CreatedAt))
             .ToListAsync();
 
+        var mapCountries = await _db.MapCountries
+            .Where(m => m.IsActive)
+            .OrderBy(m => m.DisplayOrder)
+            .Select(m => new MapCountryDto(m.Id, m.Name, m.Latitude, m.Longitude, m.IsHome, m.IsActive, m.DisplayOrder))
+            .ToListAsync();
+
+        var testimonials = await _db.Testimonials
+            .Where(t => t.IsActive)
+            .OrderBy(t => t.DisplayOrder)
+            .Select(t => new TestimonialDto(t.Id, t.Name, t.Title, t.Company, t.Country, t.Quote, t.Rating, t.IsActive, t.DisplayOrder))
+            .ToListAsync();
+
         var settings = await _db.SiteSettings
             .ToDictionaryAsync(s => s.Key, s => s.Value);
 
-        return Ok(new SiteDataDto(stats, products, strengths, gallery, settings));
+        return Ok(new SiteDataDto(stats, products, strengths, gallery, mapCountries, testimonials, settings));
     }
 
     /// <summary>
