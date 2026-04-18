@@ -2,12 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { useInView } from '../hooks/useAnimations';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// TESTIMONIAL LAYOUT — change this value to swap the presentation
-// Options:
-//   'marquee' — infinite auto-scrolling row, pauses on hover (compact)
-//   'slider'  — single featured testimonial at a time with arrows + dots (focused)
+// TESTIMONIAL LAYOUT — two ways to configure:
+//
+// 1. Env variable (Railway / .env.local):
+//      VITE_TESTIMONIAL_LAYOUT=marquee   or   VITE_TESTIMONIAL_LAYOUT=slider
+//
+// 2. Fallback constant below (used when env var is not set):
+//      change 'marquee' → 'slider' to swap locally
+//
+// Options: 'marquee' | 'slider'
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-export const TESTIMONIAL_LAYOUT = 'marquee'; // 'slider' or 'marquee'
+export const TESTIMONIAL_LAYOUT = import.meta.env.VITE_TESTIMONIAL_LAYOUT || 'marquee';
 
 const initials = (name = '') => name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
@@ -26,43 +31,91 @@ function Stars({ rating, size = 14 }) {
 
 /* ─── MARQUEE layout ─────────────────────────────────────────── */
 function MarqueeLayout({ items }) {
-  // Duplicate for seamless loop
+  const trackRef = useRef(null);
+  const paused = useRef(false);
   const doubled = [...items, ...items];
 
+  const scroll = (dir) => {
+    const track = trackRef.current;
+    if (!track) return;
+    // Pause auto-scroll briefly on manual nav
+    paused.current = true;
+    track.style.animationPlayState = 'paused';
+    track.style.transition = 'transform 0.4s ease';
+    const card = 360 + 20; // card width + gap
+    const current = new DOMMatrix(getComputedStyle(track).transform).m41;
+    track.style.transform = `translateX(${current + dir * card * -1}px)`;
+    setTimeout(() => {
+      track.style.transition = '';
+      track.style.animationPlayState = 'running';
+      paused.current = false;
+    }, 600);
+  };
+
   return (
-    <div className="relative overflow-hidden max-w-[1400px] mx-auto">
+    <div className="relative max-w-[1400px] mx-auto">
       {/* Fade edges */}
       <div className="absolute left-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-r from-eco-dark to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-24 md:w-32 bg-gradient-to-l from-eco-dark to-transparent z-10 pointer-events-none" />
 
-      <div className="flex gap-5 testimonial-marquee-track" style={{ width: 'max-content' }}>
-        {doubled.map((t, idx) => (
-          <div
-            key={`${t.id}-${idx}`}
-            className="w-[320px] md:w-[360px] shrink-0 bg-white/[0.03] border border-eco-gold/[0.12] rounded-2xl p-6
-                       hover:border-eco-gold/30 transition-colors"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#C9A96E" className="mb-3 opacity-60">
-              <path d="M4.6 11.3L3 12.9v3.7l4.4-4.4V5.7H1v5.6zm13 0l-1.6 1.6v3.7l4.4-4.4V5.7H14v5.6z" />
-            </svg>
-            <p className="text-eco-cream/75 text-sm leading-relaxed mb-5 line-clamp-4">
-              {t.quote}
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-eco-gold/30 to-eco-gold/10
-                              border border-eco-gold/25 flex items-center justify-center
-                              text-eco-gold font-semibold text-xs shrink-0">
-                {initials(t.name)}
-              </div>
-              <div className="min-w-0">
-                <div className="text-eco-cream text-sm font-medium truncate">{t.name}</div>
-                <div className="text-eco-cream/40 text-[0.68rem] truncate">
-                  {[t.company, t.country].filter(Boolean).join(', ')}
+      {/* Left arrow */}
+      <button
+        onClick={() => scroll(-1)}
+        aria-label="Previous"
+        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20
+                   w-9 h-9 rounded-full bg-eco-dark/80 border border-eco-gold/25
+                   text-eco-gold hover:bg-eco-gold/10 hover:border-eco-gold/50
+                   transition-all flex items-center justify-center"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+
+      {/* Right arrow */}
+      <button
+        onClick={() => scroll(1)}
+        aria-label="Next"
+        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20
+                   w-9 h-9 rounded-full bg-eco-dark/80 border border-eco-gold/25
+                   text-eco-gold hover:bg-eco-gold/10 hover:border-eco-gold/50
+                   transition-all flex items-center justify-center"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+      </button>
+
+      <div className="overflow-hidden">
+        <div ref={trackRef} className="flex gap-5 testimonial-marquee-track" style={{ width: 'max-content' }}>
+          {doubled.map((t, idx) => (
+            <div
+              key={`${t.id}-${idx}`}
+              className="w-[320px] md:w-[360px] shrink-0 bg-white/[0.03] border border-eco-gold/[0.12] rounded-2xl p-6
+                         hover:border-eco-gold/30 transition-colors"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#C9A96E" className="mb-3 opacity-60">
+                <path d="M4.6 11.3L3 12.9v3.7l4.4-4.4V5.7H1v5.6zm13 0l-1.6 1.6v3.7l4.4-4.4V5.7H14v5.6z" />
+              </svg>
+              <p className="text-eco-cream/75 text-sm leading-relaxed mb-5 line-clamp-4">
+                {t.quote}
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-eco-gold/30 to-eco-gold/10
+                                border border-eco-gold/25 flex items-center justify-center
+                                text-eco-gold font-semibold text-xs shrink-0">
+                  {initials(t.name)}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-eco-cream text-sm font-medium truncate">{t.name}</div>
+                  <div className="text-eco-cream/40 text-[0.68rem] truncate">
+                    {[t.company, t.country].filter(Boolean).join(', ')}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <style>{`
