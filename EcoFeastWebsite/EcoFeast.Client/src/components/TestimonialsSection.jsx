@@ -7,7 +7,7 @@ import { useInView } from '../hooks/useAnimations';
 //   'marquee' — infinite auto-scrolling row, pauses on hover (compact)
 //   'slider'  — single featured testimonial at a time with arrows + dots (focused)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-export const TESTIMONIAL_LAYOUT = 'slider';
+export const TESTIMONIAL_LAYOUT = 'marquee'; // 'slider' or 'marquee'
 
 const initials = (name = '') => name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
