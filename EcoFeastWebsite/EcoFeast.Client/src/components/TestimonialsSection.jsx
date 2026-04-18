@@ -12,7 +12,7 @@ import { useInView } from '../hooks/useAnimations';
 //
 // Options: 'marquee' | 'slider'
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-export const TESTIMONIAL_LAYOUT = import.meta.env.VITE_TESTIMONIAL_LAYOUT || 'marquee';
+export const TESTIMONIAL_LAYOUT = import.meta.env.VITE_TESTIMONIAL_LAYOUT || 'slider';
 
 const initials = (name = '') => name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
